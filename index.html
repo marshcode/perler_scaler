@@ -8,25 +8,67 @@
                 display: flex;
                 flex-direction: row
             }
+
+            .canvas_layers{
+                position: relative;
+            }
+            .canvas_layers .canvas_layer {
+                position:absolute;
+                left:0;
+                top:0;
+            }
+
         </style>
 
         <script>
+            /////////////////
+            // Constants
+            /////////////////
+            const GRID_SIZE = 22;
+            const GRID_SIZE_HALF = 11;
+
+
             /////////////////////////
             //DOM manipulation
             /////////////////////////
             window.onload = function() {
-                document.getElementById("uploadimage").addEventListener("change", draw, false)
+                document.getElementById("uploadimage").addEventListener("change", draw, false);
+                document.getElementById("canvas_debug").addEventListener('click', canvas_click, false);
             };
 
-            function set_scale_onclick(onclick){
+            function set_scale_onclick(grid_to_color){
+
+
+
+                let onclick = function(){
+                    let scale = document.getElementById('scale_input').value
+                    let grid_w = document.getElementById('grid_w_input').value
+                    let grid_h = document.getElementById('grid_h_input').value
+
+                    grid_w = grid_w || Math.floor(canvas.width / GRID_SIZE);
+                    grid_h = grid_h || Math.floor(canvas.height / GRID_SIZE);
+                    do_scale(grid_w, grid_h, scale, grid_to_color); 
+                }
+
                 document.getElementById('scale_button').addEventListener('click', onclick, false)
+            }
+
+            let resize_canvas = function(canvas_id, width, height){
+                canvas = document.getElementById(canvas_id);
+                canvas_debug = document.getElementById(canvas_id+"_debug");
+
+                canvas.height = height;
+                canvas.width = width;
+                if (canvas_debug){
+                    canvas_debug.height = height;
+                    canvas_debug.width = width;
+                }
             }
 
             /////////////////////////
             //Source: Image Logic
             /////////////////////////
             function draw(ev) {
-                console.log(ev);
                 var canvas = document.getElementById('canvas')
 
                 var ctx = canvas.getContext('2d'),
@@ -38,18 +80,10 @@
                 img.src = src;
 
                 img.onload = function() {
-                    canvas.height = this.height;
-                    canvas.width = this.width;
+                    resize_canvas('canvas', this.width, this.height);
                     // consider bringing this down for larger images
                     ctx.drawImage(img, 0, 0);
                     url.revokeObjectURL(src);
-
-                    let scale = document.getElementById('scale_input').value
-                    let grid_w = document.getElementById('grid_w_input').value
-                    let grid_h = document.getElementById('grid_h_input').value
-
-                    grid_w = grid_w || Math.floor(canvas.width / 22);
-                    grid_h = grid_h || Math.floor(canvas.height / 22);
 
                     // this lets us use other formats in the future
                     const image_grid_color = function(x, y){
@@ -58,10 +92,10 @@
                         return get_color_at_grid_point(x, y, ctx);
                     }
 
-
-                    do_scale(grid_w, grid_h, scale, image_grid_color); 
-                    set_scale_onclick(function(){console.log('hi')});
+                    set_scale_onclick(image_grid_color);
                 }
+
+                
  
             }
 
@@ -80,8 +114,15 @@
             /////////////////////////
             var convert_coords = function(grid_x, grid_y){
                 return {
-                    'canvas_x': (grid_x * 22) + 11,
-                    'canvas_y': (grid_y * 22) + 11
+                    'canvas_x': (grid_x * GRID_SIZE) + GRID_SIZE_HALF,
+                    'canvas_y': (grid_y * GRID_SIZE) + GRID_SIZE_HALF
+                }
+            }
+
+            var grid_coords_from_canvas = function(canvas_x, canvas_y){
+                return {
+                    'grid_x': Math.floor(canvas_x / GRID_SIZE),
+                    'grid_y': Math.floor(canvas_y / GRID_SIZE),
                 }
             }
 
@@ -109,10 +150,9 @@
                 for(var grid_x = 1; grid_x<=grid_x_max; grid_x++){
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
-                        console.log("(" + grid_x + ", " + grid_y + "): " + color);
 
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
-                            draw_scale(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
+                            draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
                         })
                     }
                 }
@@ -147,13 +187,26 @@
             }
 
             /////////////////////////
-            //Scaler Canvas
+            //Canvas Logic
             /////////////////////////
-            var draw_scale = function(grid_x, grid_y, rgb_array, scale_context){
+            var draw_rect = function(grid_x, grid_y, rgb_array, scale_context){
 
                 canvas_coords = convert_coords(grid_x, grid_y);
                 scale_context.fillStyle = `rgb(${rgb_array[0]}, ${rgb_array[1]}, ${rgb_array[2]})`;
-                scale_context.fillRect(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 22, 22)
+                scale_context.fillRect(canvas_coords['canvas_x'], canvas_coords['canvas_y'], GRID_SIZE, GRID_SIZE)
+            }
+
+            var draw_rect_border = function(grid_x, grid_y, context){
+                canvas_coords = convert_coords(grid_x, grid_y);
+                context.save();
+                context.beginPath();
+                context.lineWidth = "3";
+                context.strokeStyle = "red";
+                console.log(canvas_coords);
+                context.rect(canvas_coords['canvas_x'] - GRID_SIZE_HALF, 
+                             canvas_coords['canvas_y'] - GRID_SIZE_HALF, GRID_SIZE, GRID_SIZE);
+                context.stroke();    
+                context.restore();              
             }
 
             var draw_text = function(grid_x, grid_y, text, scale_context){
@@ -181,6 +234,25 @@
                 scale_context.stroke();
                 scale_context.restore();
             }
+
+            var clear_canvas = function(canvas){
+                const context = canvas.getContext('2d');
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ////////////////////////////////
+            //Canvas Click Interactions
+            ////////////////////////////////
+            let canvas_click = function(ev){
+                var rect = ev.target.getBoundingClientRect();
+                var x = ev.clientX - rect.left; //x position within the element.
+                var y = ev.clientY - rect.top;  //y position within the element.
+                var grid = grid_coords_from_canvas(x,y);
+
+                canvas = document.getElementById('canvas_debug');
+                clear_canvas(canvas);
+                draw_rect_border(grid.grid_x, grid.grid_y, canvas.getContext('2d'));
+            }
         </script>
     </head>
 
@@ -201,12 +273,18 @@
                 Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
                 <input type="button" id="scale_button" value="Scale" />
             </fieldset>
+            <fieldset>
+                <legend>Color Debug</legend>
+            </fieldset>
         </div>
 
         <div class="side_by_side">
             <fieldset>
                 <legend>Original</legend>
-                <canvas id="canvas" width="500"></canvas>
+                <div class="canvas_layers">
+                    <canvas id="canvas" width="500"></canvas>
+                    <canvas id="canvas_debug" class="canvas_layer"></canvas>
+                </div>
             </fieldset> 
 
             <fieldset>
