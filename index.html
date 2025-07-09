@@ -17,12 +17,13 @@
                 img.src = src;
 
                 img.onload = function() {
-                    var ratio = this.height / this.width;
                     canvas.height = this.height;
                     canvas.width = this.width;
                     // consider bringing this down for larger images
                     ctx.drawImage(img, 0, 0);
                     url.revokeObjectURL(src);
+
+                    do_scale(18, 21, 2); //TODO: get these from inputs
                 }
                 //canvas.height = canvas.width * ratio;  
             }
@@ -31,14 +32,82 @@
                 document.getElementById("uploadimage").addEventListener("change", draw, false)
             };
 
+
+            var do_scale = function(grid_x_max, grid_y_max, scale){
+                const canvas = document.getElementById("canvas");
+                const ctx = canvas.getContext("2d");
+                const scale_canvas = document.getElementById("canvas_scale");
+                const scale_context = scale_canvas.getContext("2d");
+
+
+                scale_canvas.width = canvas.width * scale;
+                scale_canvas.height = canvas.height * scale;
+
+                for(var grid_x=0; grid_x <= grid_x_max * scale; grid_x++){
+                    draw_text(grid_x, 0, `${grid_x+1}`, scale_context);
+                }
+
+                for(var grid_y=0; grid_y <= grid_y_max * scale; grid_y++){
+                    draw_text(0, grid_y, `${grid_y+1}`, scale_context);
+                }
+
+                for(var grid_x = 1; grid_x<=grid_x_max; grid_x++){
+                    for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
+                        const color = get_color_at_grid_point(grid_x, grid_y, ctx);
+                        console.log("(" + grid_x + ", " + grid_y + "): " + color);
+                        draw_scale(grid_x, grid_y, color, scale_context);
+                    }
+                }
+            }
+
+
+            var get_color_at_grid_point = function(grid_x, grid_y, canvas_context){
+
+                canvas_coords = convert_coords(grid_x, grid_y);
+                const pixelData = canvas_context.getImageData(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 1, 1).data;
+                return pixelData;
+            }
+
+            var convert_coords = function(grid_x, grid_y){
+                return {
+                    'canvas_x': (grid_x * 22) + 11,
+                    'canvas_y': (grid_y * 22) + 11
+                }
+            }
+
+            var draw_scale = function(grid_x, grid_y, rgb_array, scale_context){
+
+                canvas_coords = convert_coords(grid_x, grid_y);
+                scale_context.fillStyle = `rgb(${rgb_array[0]}, ${rgb_array[1]}, ${rgb_array[2]})`;
+                scale_context.fillRect(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 22, 22)
+            }
+
+            var draw_text = function(grid_x, grid_y, text, scale_context){
+                canvas_coords = convert_coords(grid_x, grid_y);
+                scale_context.fillText(text, canvas_coords['canvas_x'], canvas_coords['canvas_y'])
+
+
+            }
         </script>
     </head>
 
     <body>
 
-        <canvas id="canvas" width="500"></canvas>
-        <input type='file' name='img' size='65' id='uploadimage' />
+        <fieldset>
+            <legend>Inputs</legend>
+            <input type='file' name='img' size='65' id='uploadimage' />
+            Scale: <input type="number" name="scale" min="1" value="2"/>
+        </fieldset>
+        
+        <fieldset>
+            <legend>Original</legend>
+            <canvas id="canvas" width="500"></canvas>
+        </fieldset> 
 
+        <fieldset>
+            <legend>Scale</legend>
+            <canvas id="canvas_scale" width="500"></canvas>
+        </fieldset> 
     </body>
 
 </html>
