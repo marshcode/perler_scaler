@@ -43,6 +43,7 @@
                 scale_canvas.width = canvas.width * scale;
                 scale_canvas.height = canvas.height * scale;
 
+                //draw number grid
                 for(var grid_x=0; grid_x <= (grid_x_max * scale)+1; grid_x++){
                     draw_text(grid_x, 0, `${grid_x}`, scale_context);
                 }
@@ -51,6 +52,7 @@
                     draw_text(0, grid_y, `${grid_y}`, scale_context);
                 }
 
+                //draw scale
                 for(var grid_x = 1; grid_x<=grid_x_max; grid_x++){
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_at_grid_point(grid_x, grid_y, ctx);
@@ -60,6 +62,15 @@
                             draw_scale(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
                         })
                     }
+                }
+
+                //draw grid lines
+                for(var grid_x=0; grid_x <= (grid_x_max * scale)+2; grid_x++){
+                    draw_line(grid_x, 0, grid_x, (grid_y_max*scale)+2, scale_context)
+                }
+
+                for(var grid_y=0; grid_y <= (grid_y_max * scale)+2; grid_y++){
+                    draw_line(0, grid_y, (grid_x_max*scale)+2, grid_y, scale_context)
                 }
             }
 
@@ -106,9 +117,28 @@
 
             var draw_text = function(grid_x, grid_y, text, scale_context){
                 canvas_coords = convert_coords(grid_x, grid_y);
-                scale_context.fillText(text, canvas_coords['canvas_x'], canvas_coords['canvas_y'])
+                scale_context.fillText(text, canvas_coords['canvas_x']+7, canvas_coords['canvas_y']+11)
+            }
+            
 
+            var draw_line = function(grid_x_start, grid_y_start, grid_x_end, grid_y_end, scale_context){
 
+                start_coord = convert_coords(grid_x_start, grid_y_start);
+                end_coord = convert_coords(grid_x_end, grid_y_end);
+                scale_context.beginPath();
+                scale_context.moveTo(start_coord['canvas_x'], start_coord['canvas_y']);
+                scale_context.lineTo(end_coord['canvas_x'], end_coord['canvas_y']);
+
+                // Draw the Path
+                scale_context.save();
+                scale_context.strokeStyle = "white";
+                scale_context.stroke();
+
+                scale_context.restore();
+                scale_context.strokeStyle = "black";
+                scale_context.setLineDash([5, 3]);
+                scale_context.stroke();
+                scale_context.restore();
             }
         </script>
     </head>
