@@ -3,6 +3,13 @@
     <head>
         <title>Pokemon Pearler Scaler</title>
 
+        <style type="text/css">
+            .side_by_side {
+                display: flex;
+                flex-direction: row
+            }
+        </style>
+
         <script>
             function draw(ev) {
                 console.log(ev);
@@ -30,9 +37,16 @@
                     grid_w = grid_w || Math.floor(canvas.width / 22);
                     grid_h = grid_h || Math.floor(canvas.height / 22);
 
-                    do_scale(grid_w, grid_h, scale); //TODO: get these from inputs
+                    // this lets us use other formats in the future
+                    const image_grid_color = function(x, y){
+                        const canvas = document.getElementById("canvas");
+                        const ctx = canvas.getContext("2d");
+                        return get_color_at_grid_point(x, y, ctx);
+                    }
+
+                    do_scale(grid_w, grid_h, scale, image_grid_color); 
                 }
-                //canvas.height = canvas.width * ratio;  
+ 
             }
 
             window.onload = function() {
@@ -40,9 +54,7 @@
             };
 
 
-            var do_scale = function(grid_x_max, grid_y_max, scale){
-                const canvas = document.getElementById("canvas");
-                const ctx = canvas.getContext("2d");
+            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
 
@@ -62,7 +74,7 @@
                 //draw scale
                 for(var grid_x = 1; grid_x<=grid_x_max; grid_x++){
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
-                        const color = get_color_at_grid_point(grid_x, grid_y, ctx);
+                        const color = get_color_for_grid(grid_x, grid_y);
                         console.log("(" + grid_x + ", " + grid_y + "): " + color);
 
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
@@ -152,23 +164,35 @@
 
     <body>
 
-        <fieldset>
-            <legend>Inputs</legend>
-            <input type='file' name='img' size='65' id='uploadimage' />
-            Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="2"/>
-            Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/>
-            Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" />
-        </fieldset>
-        
-        <fieldset>
-            <legend>Original</legend>
-            <canvas id="canvas" width="500"></canvas>
-        </fieldset> 
+        <div class="side_by_side">
+            <fieldset>
+                <legend>Image Input</legend>
+                <input type='file' name='img' size='65' id='uploadimage' />
+            </fieldset>
+        </div>
 
-        <fieldset>
-            <legend>Scale</legend>
-            <canvas id="canvas_scale" width="500"></canvas>
-        </fieldset> 
+        <div class="side_by_side">
+            <fieldset>
+                <legend>Scaling Options</legend>
+                Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="2"/> <br />
+                Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/> <br />
+                Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
+                <input type="button" value="Scale" />
+            </fieldset>
+        </div>
+
+        <div class="side_by_side">
+            <fieldset>
+                <legend>Original</legend>
+                <canvas id="canvas" width="500"></canvas>
+            </fieldset> 
+
+            <fieldset>
+                <legend>Scale</legend>
+                <canvas id="canvas_scale" width="500"></canvas>
+            </fieldset> 
+        </div>
+
     </body>
 
 </html>
