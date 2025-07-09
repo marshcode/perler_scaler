@@ -43,19 +43,22 @@
                 scale_canvas.width = canvas.width * scale;
                 scale_canvas.height = canvas.height * scale;
 
-                for(var grid_x=0; grid_x <= grid_x_max * scale; grid_x++){
-                    draw_text(grid_x, 0, `${grid_x+1}`, scale_context);
+                for(var grid_x=0; grid_x <= (grid_x_max * scale)+1; grid_x++){
+                    draw_text(grid_x, 0, `${grid_x}`, scale_context);
                 }
 
-                for(var grid_y=0; grid_y <= grid_y_max * scale; grid_y++){
-                    draw_text(0, grid_y, `${grid_y+1}`, scale_context);
+                for(var grid_y=0; grid_y <= (grid_y_max * scale)+1; grid_y++){
+                    draw_text(0, grid_y, `${grid_y}`, scale_context);
                 }
 
                 for(var grid_x = 1; grid_x<=grid_x_max; grid_x++){
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_at_grid_point(grid_x, grid_y, ctx);
                         console.log("(" + grid_x + ", " + grid_y + "): " + color);
-                        draw_scale(grid_x, grid_y, color, scale_context);
+
+                        generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
+                            draw_scale(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
+                        })
                     }
                 }
             }
@@ -73,6 +76,25 @@
                     'canvas_x': (grid_x * 22) + 11,
                     'canvas_y': (grid_y * 22) + 11
                 }
+            }
+
+            var generate_scale_coordinates = function(grid_x, grid_y, scale){
+
+
+                let x_start = grid_x * scale
+                let y_start = grid_y * scale
+
+                const coordinates = []
+                for(let scale_x=0; scale_x<scale; scale_x++){
+                    for(let scale_y=0; scale_y<scale; scale_y++){
+                        coordinates.push({
+                            'scale_y': scale_y + y_start,
+                            'scale_x': scale_x + x_start
+                        })
+                    }
+                }
+
+                return coordinates;
             }
 
             var draw_scale = function(grid_x, grid_y, rgb_array, scale_context){
