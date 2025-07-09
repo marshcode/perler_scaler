@@ -23,7 +23,14 @@
                     ctx.drawImage(img, 0, 0);
                     url.revokeObjectURL(src);
 
-                    do_scale(18, 21, 2); //TODO: get these from inputs
+                    let scale = document.getElementById('scale_input').value
+                    let grid_w = document.getElementById('grid_w_input').value
+                    let grid_h = document.getElementById('grid_h_input').value
+
+                    grid_w = grid_w || Math.floor(canvas.width / 22);
+                    grid_h = grid_h || Math.floor(canvas.height / 22);
+
+                    do_scale(grid_w, grid_h, scale); //TODO: get these from inputs
                 }
                 //canvas.height = canvas.width * ratio;  
             }
@@ -44,11 +51,11 @@
                 scale_canvas.height = canvas.height * scale;
 
                 //draw number grid
-                for(var grid_x=0; grid_x <= (grid_x_max * scale)+1; grid_x++){
+                for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
                     draw_text(grid_x, 0, `${grid_x}`, scale_context);
                 }
 
-                for(var grid_y=0; grid_y <= (grid_y_max * scale)+1; grid_y++){
+                for(var grid_y=0; grid_y <= (grid_y_max * scale)+scale; grid_y++){
                     draw_text(0, grid_y, `${grid_y}`, scale_context);
                 }
 
@@ -65,12 +72,12 @@
                 }
 
                 //draw grid lines
-                for(var grid_x=0; grid_x <= (grid_x_max * scale)+2; grid_x++){
-                    draw_line(grid_x, 0, grid_x, (grid_y_max*scale)+2, scale_context)
+                for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
+                    draw_line(grid_x, 0, grid_x, (grid_y_max*scale)+scale, scale_context)
                 }
 
-                for(var grid_y=0; grid_y <= (grid_y_max * scale)+2; grid_y++){
-                    draw_line(0, grid_y, (grid_x_max*scale)+2, grid_y, scale_context)
+                for(var grid_y=0; grid_y <= (grid_y_max * scale)+scale; grid_y++){
+                    draw_line(0, grid_y, (grid_x_max*scale)+scale, grid_y, scale_context)
                 }
             }
 
@@ -148,7 +155,9 @@
         <fieldset>
             <legend>Inputs</legend>
             <input type='file' name='img' size='65' id='uploadimage' />
-            Scale: <input type="number" name="scale" min="1" value="2"/>
+            Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="2"/>
+            Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/>
+            Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" />
         </fieldset>
         
         <fieldset>
