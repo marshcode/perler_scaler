@@ -11,6 +11,16 @@
         </style>
 
         <script>
+            /////////////////////////
+            //Setup
+            /////////////////////////
+            window.onload = function() {
+                document.getElementById("uploadimage").addEventListener("change", draw, false)
+            };
+
+            /////////////////////////
+            //Source: Image Logic
+            /////////////////////////
             function draw(ev) {
                 console.log(ev);
                 var canvas = document.getElementById('canvas')
@@ -49,11 +59,29 @@
  
             }
 
-            window.onload = function() {
-                document.getElementById("uploadimage").addEventListener("change", draw, false)
-            };
 
 
+            var get_color_at_grid_point = function(grid_x, grid_y, canvas_context){
+
+                canvas_coords = convert_coords(grid_x, grid_y);
+                const pixelData = canvas_context.getImageData(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 1, 1).data;
+                return pixelData;
+            }
+
+
+            /////////////////////////
+            //Canvas Util
+            /////////////////////////
+            var convert_coords = function(grid_x, grid_y){
+                return {
+                    'canvas_x': (grid_x * 22) + 11,
+                    'canvas_y': (grid_y * 22) + 11
+                }
+            }
+
+            /////////////////////////
+            //Scaler Logic
+            /////////////////////////
             var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
@@ -93,21 +121,6 @@
                 }
             }
 
-
-            var get_color_at_grid_point = function(grid_x, grid_y, canvas_context){
-
-                canvas_coords = convert_coords(grid_x, grid_y);
-                const pixelData = canvas_context.getImageData(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 1, 1).data;
-                return pixelData;
-            }
-
-            var convert_coords = function(grid_x, grid_y){
-                return {
-                    'canvas_x': (grid_x * 22) + 11,
-                    'canvas_y': (grid_y * 22) + 11
-                }
-            }
-
             var generate_scale_coordinates = function(grid_x, grid_y, scale){
 
 
@@ -127,6 +140,9 @@
                 return coordinates;
             }
 
+            /////////////////////////
+            //Scaler Canvas
+            /////////////////////////
             var draw_scale = function(grid_x, grid_y, rgb_array, scale_context){
 
                 canvas_coords = convert_coords(grid_x, grid_y);
