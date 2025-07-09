@@ -12,11 +12,15 @@
 
         <script>
             /////////////////////////
-            //Setup
+            //DOM manipulation
             /////////////////////////
             window.onload = function() {
                 document.getElementById("uploadimage").addEventListener("change", draw, false)
             };
+
+            function set_scale_onclick(onclick){
+                document.getElementById('scale_button').addEventListener('click', onclick, false)
+            }
 
             /////////////////////////
             //Source: Image Logic
@@ -54,7 +58,9 @@
                         return get_color_at_grid_point(x, y, ctx);
                     }
 
+
                     do_scale(grid_w, grid_h, scale, image_grid_color); 
+                    set_scale_onclick(function(){console.log('hi')});
                 }
  
             }
@@ -193,7 +199,7 @@
                 Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="2"/> <br />
                 Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/> <br />
                 Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
-                <input type="button" value="Scale" />
+                <input type="button" id="scale_button" value="Scale" />
             </fieldset>
         </div>
 
