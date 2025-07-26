@@ -18,12 +18,21 @@
                 top:0;
             }
 
-            #legend_container label{
+            #legend_container div{
                 display:block;
             }
 
-            #legend_container input{
+            #legend_container .color_swatch{
+                width: 1em;
+                display: inline-block;
+                border: solid 1px black;
                 margin-right:5px;
+                text-align: center;
+            }
+
+            #legend_container .color_index{
+                color: rgb(255, 255, 255); 
+                mix-blend-mode: difference;
             }
         </style>
 
@@ -81,15 +90,24 @@
             //Color Legend
             ////////////////////////
 
+            COLOR_INDEX = new Map();
             COLOR_LEGEND = new Map();
             function legend_clear(){
                 COLOR_LEGEND.clear();
+                COLOR_INDEX.clear();
             }
 
             function legend_add(r,g,b){
                 key = [r,g,b].join(",")
                 const current = COLOR_LEGEND.get(key);
                 COLOR_LEGEND.set(key, (current || 0) + 1);
+
+                index = COLOR_INDEX.get(key);
+                if(!index){
+                    COLOR_INDEX.set( key, COLOR_INDEX.size + 1 );
+                    index = COLOR_INDEX.get(key);
+                }
+                return index;
             }
 
             function legend_render(){
@@ -97,15 +115,22 @@
 
                 const newLegend = [];
                 COLOR_LEGEND.forEach((value, key) => {
-                    const button = document.createElement("input");
-                    const label = document.createElement("label");
-                    label.append(button);
-                    label.append(value);
-                    newLegend.push(label);
-                    
+                    const color_line = document.createElement("div");
+                    const color_swatch = document.createElement("span");
+                    const color_index = document.createElement("span");
+                    const color_count = document.createElement("span");
+                    color_line.append(color_swatch);
+                    color_line.append(color_count);
+                    color_swatch.append(color_index);
+                    newLegend.push(color_line);
 
-                    button.type='button';
-                    button.style.backgroundColor = `rgb(${key})`;
+                    color_count.innerHTML = value;
+
+                    color_swatch.style.backgroundColor = `rgb(${key})`;
+                    color_swatch.setAttribute('class', 'color_swatch');
+
+                    color_index.setAttribute('class', 'color_index');
+                    color_index.innerHTML = COLOR_INDEX.get(key);
 
                 });
 
