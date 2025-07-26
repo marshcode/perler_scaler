@@ -27,19 +27,22 @@
             const GRID_SIZE = 22;
             const GRID_SIZE_HALF = 11;
 
+            ////////////////////
+            // Variables
+            ///////////////////
+            var backCanvas = document.createElement('canvas');
 
             /////////////////////////
             //DOM manipulation
             /////////////////////////
             window.onload = function() {
-                document.getElementById("uploadimage").addEventListener("change", draw, false);
+                document.getElementById("uploadpattern").addEventListener("change", drawpattern, false);
+                document.getElementById("uploadsprite").addEventListener("change", drawsprite, false);
                 document.getElementById("canvas_debug").addEventListener('click', canvas_click, false);
+                document.addEventListener('keypress', canvas_nudge, false)
             };
 
             function set_scale_onclick(grid_to_color){
-
-
-
                 let onclick = function(){
                     let scale = document.getElementById('scale_input').value
                     let grid_w = document.getElementById('grid_w_input').value
@@ -68,12 +71,12 @@
             /////////////////////////
             //Source: Image Logic
             /////////////////////////
-            function draw(ev) {
+            function drawpattern(ev) {
                 var canvas = document.getElementById('canvas')
 
                 var ctx = canvas.getContext('2d'),
                     img = new Image(),
-                    f = document.getElementById("uploadimage").files[0],
+                    f = document.getElementById("uploadpattern").files[0],
                     url = window.URL || window.webkitURL,
                     src = url.createObjectURL(f);
 
@@ -83,6 +86,7 @@
                     resize_canvas('canvas', this.width, this.height);
                     // consider bringing this down for larger images
                     ctx.drawImage(img, 0, 0);
+                    copy_canvas(canvas, backCanvas, 0, 0)
                     url.revokeObjectURL(src);
 
                     // this lets us use other formats in the future
@@ -94,12 +98,36 @@
 
                     set_scale_onclick(image_grid_color);
                 }
-
-                
- 
             }
 
+            function drawsprite(ev) {
+                var canvas = document.getElementById('canvas')
+                var ctx = canvas.getContext('2d'),
+                    img = new Image(),
+                    f = document.getElementById("uploadsprite").files[0],
+                    url = window.URL || window.webkitURL,
+                    src = url.createObjectURL(f);
 
+
+                    img.src = src;
+                    img.onload = function() {
+                        resize_canvas('canvas', this.width, this.height);
+                        // consider bringing this down for larger images
+                        ctx.drawImage(img, 0, 0);
+                        url.revokeObjectURL(src);
+
+                    // this lets us use other formats in the future
+                    const image_grid_color = function(x, y){
+                        const canvas = document.getElementById("canvas");
+                        const ctx = canvas.getContext("2d");
+                        return canvas_context.getImageData(x, y, 1, 1).data;
+                    }
+
+                    document.getElementById('grid_w_input').value = this.width * GRID_SIZE
+                    document.getElementById('grid_h_input').value = this.height * GRID_SIZE
+                    set_scale_onclick(image_grid_color);
+                }
+            }
 
             var get_color_at_grid_point = function(grid_x, grid_y, canvas_context){
 
@@ -235,6 +263,13 @@
                 scale_context.restore();
             }
 
+            var copy_canvas = function(from_canvas, to_canvas, x, y){
+                to_canvas.width = from_canvas.width;
+                to_canvas.height = from_canvas.height;
+                var to_canvas_context = to_canvas.getContext('2d');
+                to_canvas_context.drawImage(from_canvas, x, y);
+            }
+
             var clear_canvas = function(canvas){
                 const context = canvas.getContext('2d');
                 context.clearRect(0, 0, canvas.width, canvas.height);
@@ -253,6 +288,37 @@
                 clear_canvas(canvas);
                 draw_rect_border(grid.grid_x, grid.grid_y, canvas.getContext('2d'));
             }
+
+            let canvas_nudge = function(ev){
+
+                dx = 0;
+                dy = 0;
+                switch(ev.key) {
+                case 'w': //up
+                    dy = -1;
+                    break;
+                case 'a': //left
+                    dx = -1;
+                    break;
+                case 's': //down
+                    dy = 1
+                    break;
+                case 'd': //right
+                    dx = 1;
+                    break;
+                default:
+                    // code block
+                }
+
+                var backCtx = backCanvas.getContext('2d');
+                var canvas = document.getElementById("canvas");
+                
+                canvas.dataset.dx = (Number(canvas.dataset.dx) || 0) + dx;
+                canvas.dataset.dy = (Number(canvas.dataset.dy) || 0) + dy;
+                copy_canvas(backCanvas, canvas, Number(canvas.dataset.dx), Number(canvas.dataset.dy))
+                
+
+            }
         </script>
     </head>
 
@@ -260,8 +326,13 @@
 
         <div class="side_by_side">
             <fieldset>
-                <legend>Image Input</legend>
-                <input type='file' name='img' size='65' id='uploadimage' />
+                <legend>Pattern Input</legend>
+                <input type='file' name='img' size='65' id='uploadpattern' />
+            </fieldset>
+
+            <fieldset>
+                <legend>Sprite Input</legend>
+                <input type='file' name='img' size='65' id='uploadsprite' />
             </fieldset>
         </div>
 
