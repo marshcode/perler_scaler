@@ -280,7 +280,9 @@
                         const color_index = legend_add(color[0], color[1], color[2]);
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
-                            draw_text(scale_coord['scale_x'], scale_coord['scale_y'], ""+color_index,  debug_context);
+
+                            const style = is_light(color[0], color[1], color[2]) ? "white" : "black";
+                            draw_styled_text(scale_coord['scale_x'], scale_coord['scale_y'], ""+color_index,  style, debug_context);
                         });
                     }
                 }
@@ -341,6 +343,13 @@
             var draw_text = function(grid_x, grid_y, text, scale_context){
                 canvas_coords = convert_coords(grid_x, grid_y);
                 scale_context.fillText(text, canvas_coords['canvas_x']+7, canvas_coords['canvas_y']+11)
+            }
+
+            var draw_styled_text = function(grid_x, grid_y, text, style, scale_context){
+                scale_context.save();
+                scale_context.fillStyle = style;
+                draw_text(grid_x, grid_y, text, scale_context);
+                scale_context.restore()
             }
             
 
