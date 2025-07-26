@@ -18,6 +18,13 @@
                 top:0;
             }
 
+            #legend_container label{
+                display:block;
+            }
+
+            #legend_container input{
+                margin-right:5px;
+            }
         </style>
 
         <script>
@@ -69,6 +76,43 @@
                     canvas_debug.width = width;
                 }
             }
+
+            /////////////////////////
+            //Color Legend
+            ////////////////////////
+
+            COLOR_LEGEND = new Map();
+            function legend_clear(){
+                COLOR_LEGEND.clear();
+            }
+
+            function legend_add(r,g,b){
+                key = [r,g,b].join(",")
+                const current = COLOR_LEGEND.get(key);
+                COLOR_LEGEND.set(key, (current || 0) + 1);
+            }
+
+            function legend_render(){
+                const legend_container = document.getElementById("legend_container");
+
+                const newLegend = [];
+                COLOR_LEGEND.forEach((value, key) => {
+                    const button = document.createElement("input");
+                    const label = document.createElement("label");
+                    label.append(button);
+                    label.append(value);
+                    newLegend.push(label);
+                    
+
+                    button.type='button';
+                    button.style.backgroundColor = `rgb(${key})`;
+
+                });
+
+                legend_container.replaceChildren(...newLegend);
+
+            }
+
 
             /////////////////////////
             //Source: Image Logic
@@ -124,10 +168,15 @@
                         const canvas = document.getElementById("canvas");
                         const ctx = canvas.getContext("2d");
                         const pixel_data = ctx.getImageData(x-1, y-1, 1, 1).data;
-                        console.log(pixel_data)
+                        
+                        alpha = pixel_data[3]
+                        if(alpha > 0){
+                            pixel_data[3] = 255;
+                        }
+
                         return pixel_data;
                     }
-                    set_scale_options(canvas.width, canvas.height);
+                    set_scale_options(canvas.width+1, canvas.height+1);
                     set_scale_onclick(image_grid_color, GRID_SIZE * 1.2);
                 }
             }
@@ -163,7 +212,7 @@
             var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, canvas_scale){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
-
+                legend_clear();
 
                 if(!canvas_scale){
                     canvas_scale = 1;
@@ -190,6 +239,8 @@
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
 
+                        legend_add(color[0], color[1], color[2]);
+
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
                         })
@@ -204,6 +255,8 @@
                 for(var grid_y=0; grid_y <= (grid_y_max * scale)+scale; grid_y++){
                     draw_line(0, grid_y, (grid_x_max*scale)+scale, grid_y, scale_context)
                 }
+
+                legend_render();
             }
 
             var generate_scale_coordinates = function(grid_x, grid_y, scale){
@@ -349,13 +402,17 @@
         <div class="side_by_side">
             <fieldset>
                 <legend>Scaling Options</legend>
-                Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="2"/> <br />
+                Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="1"/> <br />
                 Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/> <br />
                 Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
                 <input type="button" id="scale_button" value="Scale" />
             </fieldset>
             <fieldset>
                 <legend>Color Debug</legend>
+            </fieldset>
+            <fieldset>
+                <legend>Color Legend</legend>
+                <div id="legend_container"></div>
             </fieldset>
         </div>
 
