@@ -42,18 +42,20 @@
                 document.addEventListener('keypress', canvas_nudge, false)
             };
 
-            function set_scale_onclick(grid_to_color){
+            function set_scale_onclick(grid_to_color, canvas_scale){
                 let onclick = function(){
                     let scale = document.getElementById('scale_input').value
                     let grid_w = document.getElementById('grid_w_input').value
                     let grid_h = document.getElementById('grid_h_input').value
-
-                    grid_w = grid_w || Math.floor(canvas.width / GRID_SIZE);
-                    grid_h = grid_h || Math.floor(canvas.height / GRID_SIZE);
-                    do_scale(grid_w, grid_h, scale, grid_to_color); 
+                    do_scale(grid_w, grid_h, scale, grid_to_color, canvas_scale); 
                 }
 
                 document.getElementById('scale_button').addEventListener('click', onclick, false)
+            }
+
+            function set_scale_options(grid_w, grid_h){
+                document.getElementById('grid_w_input').value = grid_w;
+                document.getElementById('grid_h_input').value = grid_h;
             }
 
             let resize_canvas = function(canvas_id, width, height){
@@ -96,6 +98,7 @@
                         return get_color_at_grid_point(x, y, ctx);
                     }
 
+                    set_scale_options(canvas.width / GRID_SIZE, canvas.height / GRID_SIZE);
                     set_scale_onclick(image_grid_color);
                 }
             }
@@ -120,12 +123,12 @@
                     const image_grid_color = function(x, y){
                         const canvas = document.getElementById("canvas");
                         const ctx = canvas.getContext("2d");
-                        return canvas_context.getImageData(x, y, 1, 1).data;
+                        const pixel_data = ctx.getImageData(x-1, y-1, 1, 1).data;
+                        console.log(pixel_data)
+                        return pixel_data;
                     }
-
-                    document.getElementById('grid_w_input').value = this.width * GRID_SIZE
-                    document.getElementById('grid_h_input').value = this.height * GRID_SIZE
-                    set_scale_onclick(image_grid_color);
+                    set_scale_options(canvas.width, canvas.height);
+                    set_scale_onclick(image_grid_color, GRID_SIZE * 1.2);
                 }
             }
 
@@ -157,13 +160,21 @@
             /////////////////////////
             //Scaler Logic
             /////////////////////////
-            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid){
+            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, canvas_scale){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
 
 
-                scale_canvas.width = canvas.width * scale;
-                scale_canvas.height = canvas.height * scale;
+                if(!canvas_scale){
+                    canvas_scale = 1;
+                }
+
+                //scale_canvas.width = canvas.width * scale * canvas_scale;
+                //scale_canvas.height = canvas.height * scale* canvas_scale;
+
+                scale_canvas.width = (Number(grid_x_max)+1) * scale * GRID_SIZE;
+                scale_canvas.height = (Number(grid_y_max)+1) * scale * GRID_SIZE;
+
 
                 //draw number grid
                 for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
@@ -220,7 +231,7 @@
             var draw_rect = function(grid_x, grid_y, rgb_array, scale_context){
 
                 canvas_coords = convert_coords(grid_x, grid_y);
-                scale_context.fillStyle = `rgb(${rgb_array[0]}, ${rgb_array[1]}, ${rgb_array[2]})`;
+                scale_context.fillStyle = `rgba(${rgb_array[0]}, ${rgb_array[1]}, ${rgb_array[2]}, ${rgb_array[3]})`;
                 scale_context.fillRect(canvas_coords['canvas_x'], canvas_coords['canvas_y'], GRID_SIZE, GRID_SIZE)
             }
 
@@ -230,7 +241,6 @@
                 context.beginPath();
                 context.lineWidth = "3";
                 context.strokeStyle = "red";
-                console.log(canvas_coords);
                 context.rect(canvas_coords['canvas_x'] - GRID_SIZE_HALF, 
                              canvas_coords['canvas_y'] - GRID_SIZE_HALF, GRID_SIZE, GRID_SIZE);
                 context.stroke();    
