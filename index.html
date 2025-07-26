@@ -243,6 +243,10 @@
             var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, canvas_scale){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
+
+                const scale_debug = document.getElementById("canvas_scale_debug");
+                const debug_context = scale_debug.getContext("2d");
+
                 legend_clear();
 
                 if(!canvas_scale){
@@ -252,9 +256,7 @@
                 //scale_canvas.width = canvas.width * scale * canvas_scale;
                 //scale_canvas.height = canvas.height * scale* canvas_scale;
 
-                scale_canvas.width = (Number(grid_x_max)+1) * scale * GRID_SIZE;
-                scale_canvas.height = (Number(grid_y_max)+1) * scale * GRID_SIZE;
-
+                resize_canvas('canvas_scale', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE);
 
                 //draw number grid
                 for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
@@ -270,11 +272,11 @@
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
 
-                        legend_add(color[0], color[1], color[2]);
-
+                        const color_index = legend_add(color[0], color[1], color[2]);
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
-                        })
+                            draw_text(scale_coord['scale_x'], scale_coord['scale_y'], ""+color_index,  debug_context);
+                        });
                     }
                 }
 
@@ -447,10 +449,6 @@
             <fieldset>
                 <legend>Color Debug</legend>
             </fieldset>
-            <fieldset>
-                <legend>Color Legend</legend>
-                <div id="legend_container"></div>
-            </fieldset>
         </div>
 
         <div class="side_by_side">
@@ -464,8 +462,15 @@
 
             <fieldset>
                 <legend>Scale</legend>
-                <canvas id="canvas_scale" width="500"></canvas>
+                <div class="canvas_layers">
+                    <canvas id="canvas_scale" width="500"></canvas>
+                    <canvas id="canvas_scale_debug" class="canvas_layer"></canvas>
+                </div>
             </fieldset> 
+            <fieldset>
+                <legend>Color Legend</legend>
+                <div id="legend_container"></div>
+            </fieldset>
         </div>
 
     </body>
