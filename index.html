@@ -58,6 +58,11 @@
                 document.getElementById("uploadsprite").addEventListener("change", drawsprite, false);
                 document.getElementById("canvas_debug").addEventListener('click', canvas_click, false);
                 document.addEventListener('keypress', canvas_nudge, false)
+
+                document.getElementById('legend_enabled').addEventListener('change', function(e){
+                    document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
+                }, false);
+
             };
 
             function set_scale_onclick(grid_to_color, canvas_scale){
@@ -470,6 +475,7 @@
             <fieldset>
                 <legend>Color Legend</legend>
                 <div id="legend_container"></div>
+                <label><input id="legend_enabled" type="checkbox" checked> enabled</label>
             </fieldset>
         </div>
 
