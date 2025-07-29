@@ -113,7 +113,7 @@
                 COLOR_INDEX.clear();
             }
 
-            function legend_add(r,g,b){
+            function legend_add(r,g,b, alpha){
                 key = [r,g,b].join(",")
                 const current = COLOR_LEGEND.get(key);
                 COLOR_LEGEND.set(key, (current || 0) + 1);
@@ -123,7 +123,7 @@
                     COLOR_INDEX.set( key, COLOR_INDEX.size + 1 );
                     index = COLOR_INDEX.get(key);
                 }
-                return index;
+                return [index, [r,g,b,alpha]];
             }
 
             function legend_render(){
@@ -286,11 +286,12 @@
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
 
-                        const color_index = legend_add(color[0], color[1], color[2]);
+                        const [color_index, new_color] = legend_add(color[0], color[1], color[2], color[3]);
+                        console.log(color, new_color)
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
-                            draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, scale_context);
+                            draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
 
-                            const style = is_light(color[0], color[1], color[2]) ? "white" : "black";
+                            const style = is_light(new_color[0], new_color[1], new_color[2]) ? "white" : "black";
                             draw_styled_text(scale_coord['scale_x'], scale_coord['scale_y'], ""+color_index,  style, debug_context);
                         });
                     }
