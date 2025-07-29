@@ -66,3 +66,14 @@
                 brightness=0.2126*r + 0.7152*g + 0.0722*b;
                 return brightness < 128;
             }
+
+            function color_diff(color_one, color_two){
+                const [r1,g1,b1,alpha1] = color_one;
+                const [r2,g2,b2,alpha2] = color_two;
+
+                const r_delta = Math.abs(r1-r2);
+                const g_delta = Math.abs(g1-g2);
+                const b_delta = Math.abs(b1-b2);
+
+                return Math.sqrt( r_delta**2, g_delta**2, b_delta**2 );
+            }

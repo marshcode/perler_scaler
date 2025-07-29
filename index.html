@@ -13,6 +13,7 @@
             /////////////////
             const GRID_SIZE = 22;
             const GRID_SIZE_HALF = 11;
+            let COLOR_LEGEND = null;
 
             ////////////////////
             // Variables
@@ -30,6 +31,7 @@
                 document.getElementById('legend_enabled').addEventListener('change', function(e){
                     document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
                 }, false);
+                COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
 
             };
 
@@ -65,7 +67,7 @@
                 const legend_container = document.getElementById("legend_container");
 
                 const newLegend = [];
-                COLOR_LEGEND.forEach((value, key) => {
+                COLOR_LEGEND.get_color_legend().forEach((value, key) => {
                     const color_line = document.createElement("div");
                     const color_swatch = document.createElement("span");
                     const color_index = document.createElement("span");
@@ -86,7 +88,7 @@
                     color_index.classList.add('color_index');
                     color_index.classList.add( is_light(r,g,b) ? 'light' : 'dark' );
                     
-                    color_index.innerHTML = COLOR_INDEX.get(key);
+                    color_index.innerHTML = COLOR_LEGEND.get_color_index(key)
 
                 });
 

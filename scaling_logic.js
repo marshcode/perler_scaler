@@ -5,7 +5,7 @@
                 const scale_debug = document.getElementById("canvas_scale_debug");
                 const debug_context = scale_debug.getContext("2d");
 
-                legend_clear();
+                COLOR_LEGEND.clear();
 
                 if(!canvas_scale){
                     canvas_scale = 1;
@@ -30,7 +30,7 @@
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
 
-                        const [color_index, new_color] = legend_add(color[0], color[1], color[2], color[3], color_match);
+                        const [color_index, new_color] = COLOR_LEGEND.add(color[0], color[1], color[2], color[3], color_match);
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
 
