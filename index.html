@@ -98,7 +98,8 @@
                     let scale = document.getElementById('scale_input').value
                     let grid_w = document.getElementById('grid_w_input').value
                     let grid_h = document.getElementById('grid_h_input').value
-                    do_scale(grid_w, grid_h, scale, grid_to_color, canvas_scale); 
+                    let color_match = document.getElementById('color_match').value
+                    do_scale(grid_w, grid_h, scale, grid_to_color, canvas_scale, Number(color_match)); 
                 }
 
                 document.getElementById('scale_button').addEventListener('click', onclick, false)
@@ -143,8 +144,27 @@
                 return Math.sqrt( r_delta**2, g_delta**2, b_delta**2 );
             }
 
-            function legend_add(r,g,b,alpha){
-                key = [r,g,b].join(",")
+            function legend_add(r, g, b, alpha, color_match){
+
+                let key = false;
+                if(color_match > 0){
+                    for (var [to_match, index] of COLOR_INDEX) {
+                        const [r2,g2,b2,alpha2] = to_match.split(",").map(Number);
+                        const diff = color_diff([r,g,b], [r2,g2,b2]);
+                        if(diff <= color_match){
+                            console.log([r,g,b,alpha], [r2, g2, b2, alpha2])
+                            key = to_match;
+                            [r, g, b, alpha] = [r2, g2, b2, alpha2];
+                            break;
+                        }
+                    }
+                } 
+
+                if(!key){
+                    key = [r,g,b,alpha].join(",")
+                    
+                }
+
                 const current = COLOR_LEGEND.get(key);
                 COLOR_LEGEND.set(key, (current || 0) + 1);
 
@@ -172,10 +192,11 @@
 
                     color_count.innerHTML = value;
 
-                    color_swatch.style.backgroundColor = `rgb(${key})`;
+                    const [r,g,b,a] = key.split(",").map(Number);
+                    color_swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
                     color_swatch.setAttribute('class', 'color_swatch');
 
-                    const [r,g,b] = key.split(",").map(Number);
+                    
                     
                     color_index.classList.add('color_index');
                     color_index.classList.add( is_light(r,g,b) ? 'light' : 'dark' );
@@ -284,7 +305,7 @@
             /////////////////////////
             //Scaler Logic
             /////////////////////////
-            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, canvas_scale){
+            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, canvas_scale, color_match){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
 
@@ -316,8 +337,7 @@
                     for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
 
-                        const [color_index, new_color] = legend_add(color[0], color[1], color[2], color[3]);
-                        console.log(color, new_color)
+                        const [color_index, new_color] = legend_add(color[0], color[1], color[2], color[3], color_match);
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
 
