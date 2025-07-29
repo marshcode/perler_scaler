@@ -1,9 +1,9 @@
 
 class ColorLegend {
-  constructor(color_match_ignore) {
+  constructor() {
     this.color_legend = new Map();
     this.color_index = new Map();
-    this.color_match_ignore = color_match_ignore;
+    this.color_ignore = new Set();
   }
 
     clear() {
@@ -11,27 +11,33 @@ class ColorLegend {
         this.color_index.clear();
     }   
 
-    get_color_ignore(){
-        const color_ignore = this.color_match_ignore.value;
-        const r = parseInt(color_ignore.substr(1, 2), 16);
-        const g = parseInt(color_ignore.substr(3, 2), 16);
-        const b = parseInt(color_ignore.substr(5, 2), 16);
+    make_key(r, g, b, alpha){
+        return [r,g,b,alpha].join(",");
+    }
 
-        return [r, g, b]
+    parse_key(key){
+        return to_match.split(",").map(Number)
+    }
+
+    add_color_ignore(r,g,b){
+        this.color_ignore.add(this.make_key(r,g,b, ''))
+    }
+
+    is_color_ignored(color_array){
+        var check_key = this.make_key(color_array[0], color_array[1], color_array[2], '');
+        return this.color_ignore.has(check_key);
     }
 
     add(r, g, b, alpha, color_match){
 
-        let color_ignore = this.get_color_ignore();
-        if(r == color_ignore[0] && g == color_ignore[1] && b == color_ignore[2]){
-            console.log([r,g,b],[color_ignore])
+        if(this.is_color_ignored([r,g,b])){
             return ["", [r, g, b, alpha]]
         }
 
         let key = false;
         if(color_match > 0){
             for (var [to_match, index] of this.color_index) {
-                const [r2,g2,b2,alpha2] = to_match.split(",").map(Number);
+                const [r2,g2,b2,alpha2] = this.parse_key(to_match);
                 const diff = color_diff([r,g,b], [r2,g2,b2]);
                 if(diff <= color_match){
                     key = to_match;
@@ -42,7 +48,7 @@ class ColorLegend {
         } 
 
         if(!key){
-            key = [r,g,b,alpha].join(",")
+            key = this.make_key(r, g, b, alpha);
             
         }
 

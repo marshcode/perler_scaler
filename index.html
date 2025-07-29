@@ -13,7 +13,7 @@
             /////////////////
             const GRID_SIZE = 22;
             const GRID_SIZE_HALF = 11;
-            let COLOR_LEGEND = null;
+            let COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
 
             ////////////////////
             // Variables
@@ -31,9 +31,18 @@
                 document.getElementById('legend_enabled').addEventListener('change', function(e){
                     document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
                 }, false);
-                COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
 
+                document.getElementById('color_match_ignore').addEventListener('change', add_color_ignore, false);
+            
             };
+
+            function add_color_ignore(){
+                const color_ignore = document.getElementById('color_match_ignore').value;
+                const r = parseInt(color_ignore.substr(1, 2), 16);
+                const g = parseInt(color_ignore.substr(3, 2), 16);
+                const b = parseInt(color_ignore.substr(5, 2), 16);
+                COLOR_LEGEND.add_color_ignore(r, g, b);
+            }
 
             function set_scale_onclick(grid_to_color, canvas_scale){
                 let onclick = function(){
