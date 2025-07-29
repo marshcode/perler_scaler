@@ -16,7 +16,7 @@ class ColorLegend {
     }
 
     parse_key(key){
-        return to_match.split(",").map(Number)
+        return key.split(",").map(Number)
     }
 
     add_color_ignore(r,g,b){

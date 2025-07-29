@@ -75,5 +75,5 @@
                 const g_delta = Math.abs(g1-g2);
                 const b_delta = Math.abs(b1-b2);
 
-                return Math.sqrt( r_delta**2, g_delta**2, b_delta**2 );
+                return Math.sqrt( r_delta**2 + g_delta**2 + b_delta**2 );
             }

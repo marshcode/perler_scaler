@@ -26,8 +26,8 @@
                 }
 
                 //draw scale
-                for(var grid_x = 1; grid_x<=grid_x_max; grid_x++){
-                    for(var grid_y = 1; grid_y<=grid_y_max; grid_y++){
+                for(var grid_x = 1; grid_x<grid_x_max; grid_x++){
+                    for(var grid_y = 1; grid_y<grid_y_max; grid_y++){
                         const color = get_color_for_grid(grid_x, grid_y);
 
                         const [color_index, new_color] = COLOR_LEGEND.add(color[0], color[1], color[2], color[3], color_match);
