@@ -23,7 +23,8 @@ class ColorLegend {
     add(r, g, b, alpha, color_match){
 
         let color_ignore = this.get_color_ignore();
-        if(color_diff([r,g,b], color_ignore) === 0){
+        if(r == color_ignore[0] && g == color_ignore[1] && b == color_ignore[2]){
+            console.log([r,g,b],[color_ignore])
             return ["", [r, g, b, alpha]]
         }
 
