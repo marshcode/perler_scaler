@@ -25,7 +25,6 @@
                 document.getElementById("uploadpattern").addEventListener("change", drawpattern, false);
                 document.getElementById("uploadsprite").addEventListener("change", drawsprite, false);
                 document.getElementById("canvas_debug").addEventListener('click', canvas_click, false);
-                document.addEventListener('keypress', canvas_nudge, false)
 
                 document.getElementById('legend_enabled').addEventListener('change', function(e){
                     document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
@@ -263,10 +262,6 @@
 
                 return coordinates;
             }
-
-            /////////////////////////
-            //Canvas Logic
-            /////////////////////////
  
             ////////////////////////////////
             //Canvas Click Interactions
@@ -282,42 +277,6 @@
                 draw_rect_border(grid.grid_x, grid.grid_y, canvas.getContext('2d'));
             }
 
-            let canvas_nudge = function(ev){
-
-                dx = 0;
-                dy = 0;
-                switch(ev.key) {
-                case 'w': //up
-                    dy = -1;
-                    break;
-                case 'a': //left
-                    dx = -1;
-                    break;
-                case 's': //down
-                    dy = 1
-                    break;
-                case 'd': //right
-                    dx = 1;
-                    break;
-                default:
-                    // code block
-                }
-
-                var backCtx = backCanvas.getContext('2d');
-                var canvas = document.getElementById("canvas");
-                
-                canvas.dataset.dx = (Number(canvas.dataset.dx) || 0) + dx;
-                canvas.dataset.dy = (Number(canvas.dataset.dy) || 0) + dy;
-                copy_canvas(backCanvas, canvas, Number(canvas.dataset.dx), Number(canvas.dataset.dy))
-            }
-
-            /////////////////////
-            //Color Logic
-            /////////////////////
-            function is_light(r,g,b){
-                brightness=0.2126*r + 0.7152*g + 0.0722*b;
-                return brightness < 128;
-            }
         </script>
     </head>
 

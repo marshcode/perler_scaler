@@ -61,3 +61,8 @@
                 const context = canvas.getContext('2d');
                 context.clearRect(0, 0, canvas.width, canvas.height);
             }
+
+            function is_light(r,g,b){
+                brightness=0.2126*r + 0.7152*g + 0.0722*b;
+                return brightness < 128;
+            }
