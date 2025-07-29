@@ -61,6 +61,11 @@
 
             .color_list .color_swatch{
                 width: 1em;
+                margin-right: 2px;
+                display: inline-block;
+            }
+
+            .color_list .label{
                 margin-right: 5px;
                 display: inline-block;
             }

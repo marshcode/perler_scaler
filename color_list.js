@@ -21,6 +21,9 @@ class ColorList {
     color_swatch.style.backgroundColor = `rgb(${r}, ${g}, ${b})`
     color_swatch.innerHTML='&nbsp;'
 
+    label_element.classList.add('label')
+    label_element.innerText = label;
+
     this.parent_element.append(color_container);
   }
 }
