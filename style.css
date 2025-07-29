@@ -65,6 +65,14 @@
                 display: inline-block;
             }
 
+            .color_list .color_swatch:hover::before{
+                
+                content: "X";
+                color:#fff;
+                background-color:#787878;
+
+            }
+
             .color_list .label{
                 margin-right: 5px;
                 display: inline-block;
