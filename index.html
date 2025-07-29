@@ -45,6 +45,25 @@
             #legend_container .color_index.light{
                 color: rgb(255, 255, 255);
             }
+
+
+            .slider_container{
+                display: inline-block;
+                position: relative;
+            }
+
+            .slider {
+                z-index: 1;
+                opacity:50%;
+            }
+
+            .slider_output{
+                position: absolute;
+                left: 50%;
+                background-color: #fff;
+                z-index: -1
+                
+            }
         </style>
 
         <script>
@@ -113,7 +132,18 @@
                 COLOR_INDEX.clear();
             }
 
-            function legend_add(r,g,b, alpha){
+            function color_diff(color_one, color_two){
+                const [r1,g1,b1,alpha1] = color_one;
+                const [r2,g2,b2,alpha2] = color_two;
+
+                const r_delta = Math.abs(r1-r2);
+                const g_delta = Math.abs(g1-g2);
+                const b_delta = Math.abs(b1-b2);
+
+                return Math.sqrt( r_delta**2, g_delta**2, b_delta**2 );
+            }
+
+            function legend_add(r,g,b,alpha){
                 key = [r,g,b].join(",")
                 const current = COLOR_LEGEND.get(key);
                 COLOR_LEGEND.set(key, (current || 0) + 1);
@@ -468,6 +498,16 @@
                 Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="1"/> <br />
                 Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/> <br />
                 Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
+                Color Match:  0
+                                <div class="slider_container">
+                                    <input type="range" id='color_match' name="color_match" 
+                                    oninput="color_match_disp.value = color_match.value"
+                                    class="slider"
+                                    min="0" max="255" value="0" />
+                                    <output class="slider_output" id="color_match_disp">0</output> 
+                                </div>
+                             255
+                                <br />
                 <input type="button" id="scale_button" value="Scale" />
             </fieldset>
             <fieldset>
