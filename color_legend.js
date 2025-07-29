@@ -28,7 +28,6 @@
             function legend_add(r, g, b, alpha, color_match){
 
                 let color_ignore = get_color_ignore();
-                console.log([r,g,b], color_ignore, [r,g,b] == color_ignore);
                 if(color_diff([r,g,b], color_ignore) === 0){
                     return ["", [r, g, b, alpha]]
                 }

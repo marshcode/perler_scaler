@@ -31,7 +31,6 @@
                         const color = get_color_for_grid(grid_x, grid_y);
 
                         const [color_index, new_color] = legend_add(color[0], color[1], color[2], color[3], color_match);
-                        console.log(color_index)
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
 
