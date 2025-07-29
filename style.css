@@ -58,3 +58,9 @@
                 z-index: -1
                 
             }
+
+            .color_list .color_swatch{
+                width: 1em;
+                margin-right: 5px;
+                display: inline-block;
+            }

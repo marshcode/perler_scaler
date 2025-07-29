@@ -7,6 +7,7 @@
         <script type="text/javascript" src="./canvas_util.js"></script>
         <script type="text/javascript" src="./scaling_logic.js"></script>
         <script type="text/javascript" src="./color_legend.js"></script>
+        <script type="text/javascript" src="./color_list.js"></script>
         <script>
             /////////////////
             // Constants
@@ -14,6 +15,7 @@
             const GRID_SIZE = 22;
             const GRID_SIZE_HALF = 11;
             let COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
+            let COLOR_IGNORE_LIST;
 
             ////////////////////
             // Variables
@@ -33,6 +35,8 @@
                 }, false);
 
                 document.getElementById('color_match_ignore').addEventListener('change', add_color_ignore, false);
+
+                COLOR_IGNORE_LIST = new ColorList(document.getElementById('color_match_ignore_list'));
             
             };
 
@@ -42,6 +46,7 @@
                 const g = parseInt(color_ignore.substr(3, 2), 16);
                 const b = parseInt(color_ignore.substr(5, 2), 16);
                 COLOR_LEGEND.add_color_ignore(r, g, b);
+                COLOR_IGNORE_LIST.add_color(r, g, b, "Hi");
             }
 
             function set_scale_onclick(grid_to_color, canvas_scale){
@@ -251,6 +256,7 @@
                 255
                 <br />
                 Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
+                <div id="color_match_ignore_list" class="color_list"></div>
             </fieldset>
             <fieldset>
                 <legend>Color Debug</legend>
