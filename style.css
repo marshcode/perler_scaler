@@ -63,13 +63,18 @@
                 width: 1em;
                 margin-right: 2px;
                 display: inline-block;
+                border:solid 3px black;
+            }
+
+            .color_list .color_swatch:hover{
+                cursor:pointer;
             }
 
             .color_list .color_swatch:hover::before{
                 
                 content: "X";
                 color:#fff;
-                background-color:#787878;
+                background-color:#000000;
 
             }
 

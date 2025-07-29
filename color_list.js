@@ -22,6 +22,7 @@ class ColorList {
 
     color_swatch.classList.add('color_swatch');
     color_swatch.style.backgroundColor = `rgb(${r}, ${g}, ${b})`
+    color_swatch.style.borderColor = `rgb(${r}, ${g}, ${b})`
     color_swatch.innerHTML='&nbsp;'
 
     label_element.classList.add('label')
