@@ -144,7 +144,22 @@
                 return Math.sqrt( r_delta**2, g_delta**2, b_delta**2 );
             }
 
+            function get_color_ignore(){
+                const color_ignore = document.getElementById("color_match_ignore").value;
+                const r = parseInt(color_ignore.substr(1, 2), 16);
+                const g = parseInt(color_ignore.substr(3, 2), 16);
+                const b = parseInt(color_ignore.substr(5, 2), 16);
+
+                return [r,g,b]
+            }
+
             function legend_add(r, g, b, alpha, color_match){
+
+                let color_ignore = get_color_ignore();
+                console.log([r,g,b], color_ignore, [r,g,b] == color_ignore);
+                if(color_diff([r,g,b], color_ignore) === 0){
+                    return ["", [r, g, b, alpha]]
+                }
 
                 let key = false;
                 if(color_match > 0){
@@ -152,7 +167,6 @@
                         const [r2,g2,b2,alpha2] = to_match.split(",").map(Number);
                         const diff = color_diff([r,g,b], [r2,g2,b2]);
                         if(diff <= color_match){
-                            console.log([r,g,b,alpha], [r2, g2, b2, alpha2])
                             key = to_match;
                             [r, g, b, alpha] = [r2, g2, b2, alpha2];
                             break;
@@ -338,6 +352,7 @@
                         const color = get_color_for_grid(grid_x, grid_y);
 
                         const [color_index, new_color] = legend_add(color[0], color[1], color[2], color[3], color_match);
+                        console.log(color_index)
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
 
@@ -518,17 +533,22 @@
                 Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="1"/> <br />
                 Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/> <br />
                 Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
+
+                <input type="button" id="scale_button" value="Scale" /> 
+            </fieldset>
+            <fieldset>
+                <legend>Color Match</legend>
                 Color Match:  0
-                                <div class="slider_container">
-                                    <input type="range" id='color_match' name="color_match" 
-                                    oninput="color_match_disp.value = color_match.value"
-                                    class="slider"
-                                    min="0" max="255" value="0" />
-                                    <output class="slider_output" id="color_match_disp">0</output> 
-                                </div>
-                             255
-                                <br />
-                <input type="button" id="scale_button" value="Scale" />
+                <div class="slider_container">
+                    <input type="range" id='color_match' name="color_match" 
+                    oninput="color_match_disp.value = color_match.value"
+                    class="slider"
+                    min="0" max="255" value="0" />
+                    <output class="slider_output" id="color_match_disp">0</output> 
+                </div>
+                255
+                <br />
+                Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
             </fieldset>
             <fieldset>
                 <legend>Color Debug</legend>
