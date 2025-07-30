@@ -244,19 +244,26 @@
                 <input type="button" id="scale_button" value="Scale" /> 
             </fieldset>
             <fieldset>
-                <legend>Color Match</legend>
-                Color Match:  0
-                <div class="slider_container">
-                    <input type="range" id='color_match' name="color_match" 
-                    oninput="color_match_disp.value = color_match.value"
-                    class="slider"
-                    min="0" max="255" value="0" />
-                    <output class="slider_output" id="color_match_disp">0</output> 
+                <legend>
+                    Color Match 
+                    <select>
+                        <option value="threshold">Threshold</option>
+                    </select>
+                </legend>
+                <div id="color_match_threshold">
+                    Color Match:  0
+                    <div class="slider_container">
+                        <input type="range" id='color_match' name="color_match" 
+                        oninput="color_match_disp.value = color_match.value"
+                        class="slider"
+                        min="0" max="255" value="0" />
+                        <output class="slider_output" id="color_match_disp">0</output> 
+                    </div>
+                    255
+                    <br />
+                    Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
+                    <div id="color_match_ignore_list" class="color_list"></div>
                 </div>
-                255
-                <br />
-                Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
-                <div id="color_match_ignore_list" class="color_list"></div>
             </fieldset>
             <fieldset>
                 <legend>Color Debug</legend>
