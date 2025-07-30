@@ -28,7 +28,6 @@
             window.onload = function() {
                 document.getElementById("uploadpattern").addEventListener("change", drawpattern, false);
                 document.getElementById("uploadsprite").addEventListener("change", drawsprite, false);
-                document.getElementById("canvas_debug").addEventListener('click', canvas_click, false);
 
                 document.getElementById('legend_enabled').addEventListener('change', function(e){
                     document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
@@ -264,9 +263,6 @@
                     Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
                     <div id="color_match_ignore_list" class="color_list"></div>
                 </div>
-            </fieldset>
-            <fieldset>
-                <legend>Color Debug</legend>
             </fieldset>
         </div>
 
