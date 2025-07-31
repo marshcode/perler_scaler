@@ -55,18 +55,19 @@
                     let grid_w = document.getElementById('grid_w_input').value
                     let grid_h = document.getElementById('grid_h_input').value
 
+                    let color_match_algo = document.getElementById('color_match_algo').value
                     let color_match = false;
-
-                    let color_match_threshold = Number(document.getElementById('color_match').value)
-                    if (color_match_threshold > 0){
-                        color_match = new ColorMatchThreshold(Number(color_match_threshold));
+                    if(color_match_algo == 'threshold'){
+                        let color_match_threshold = Number(document.getElementById('color_match').value)
+                        if (color_match_threshold > 0){
+                            color_match = new ColorMatchThreshold(Number(color_match_threshold));
+                        }
+                    } else if(color_match_algo == 'palette'){
+                        var color_palette = new Map(Object.entries({
+                            'black':[0,0,0,255], 'red':[255, 0, 0, 255]
+                        }));
+                        color_match = new ColorMatchPalette(color_palette);
                     }
-                    
-
-                    //var color_palette = new Map(Object.entries({
-                    //    'black':[0,0,0,255], 'red':[255, 0, 0, 255]
-                    //}))
-                    //color_match = new ColorMatchPalette(color_palette)
 
                     do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
                 }
@@ -259,7 +260,7 @@
             <fieldset>
                 <legend>
                     Color Match 
-                    <select>
+                    <select id="color_match_algo">
                         <option value="threshold">Threshold</option>
                     </select>
                 </legend>
