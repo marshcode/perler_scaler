@@ -2,6 +2,7 @@ class ColorList {
   constructor(parent_element) {
     this.parent_element = parent_element
     this.parent_element.addEventListener('click', this.click_handler);
+    this.colors = new Map();
   }
 
   click_handler(ev){
@@ -9,6 +10,7 @@ class ColorList {
   }
 
   add_color(r,g,b, label) {
+    this.colors.set(label, [r, g, b, 255])
 
     const color_container = document.createElement("span");
     const color_swatch = document.createElement("span");

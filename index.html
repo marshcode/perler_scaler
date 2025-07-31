@@ -85,10 +85,7 @@
                             color_match = new ColorMatchThreshold(Number(color_match_threshold));
                         }
                     } else if(color_match_algo == 'palette'){
-                        var color_palette = new Map(Object.entries({
-                            'black':[0,0,0,255], 'red':[255, 0, 0, 255]
-                        }));
-                        color_match = new ColorMatchPalette(color_palette);
+                        color_match = new ColorMatchPalette(COLOR_PALETTE_LIST.colors);
                     }
 
                     do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
