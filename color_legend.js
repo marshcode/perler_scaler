@@ -84,3 +84,27 @@ class ColorMatchThreshold{
         return [r, g, b, alpha]
     }
 }
+
+class ColorMatchPalette{
+    // match to an existing palette. Will force matches
+    constructor(color_palette){
+        this.color_palette = color_palette
+    }
+
+    match(r, g, b, alpha, color_legend){
+
+        let best_color = false;
+        let best_match = Number.MAX_SAFE_INTEGER;
+
+        for (var [label, to_match] of this.color_palette) {
+            const [r2, g2, b2, alpha2] = to_match
+            const diff = color_diff([r,g,b], [r2,g2,b2]);
+            if(diff <= best_match){
+                best_color = [r2, g2, b2, alpha2];
+                best_match = diff;
+            }
+        }
+
+        return best_color;
+    }
+}
