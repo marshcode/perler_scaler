@@ -4,11 +4,14 @@ class ColorLegend {
     this.color_legend = new Map();
     this.color_index = new Map();
     this.color_ignore = new Set();
+    this.color_labels = new Map();
   }
 
     clear() {
         this.color_legend.clear();
         this.color_index.clear();
+        this.color_ignore.clear();
+        this.color_labels.clear();
     }   
 
     make_key(r, g, b, alpha){
@@ -23,6 +26,10 @@ class ColorLegend {
         this.color_ignore.add(this.make_key(r,g,b, ''))
     }
 
+    get_color_label(key){
+        return this.color_labels.get(key);
+    }
+
     is_color_ignored(color_array){
         var check_key = this.make_key(color_array[0], color_array[1], color_array[2], '');
         return this.color_ignore.has(check_key);
@@ -35,8 +42,9 @@ class ColorLegend {
         }
 
         let key = false;
+        let label = '';
         if(color_match){
-            [r, g, b, alpha] = color_match.match(r, g, b, alpha, this);
+            [[r, g, b, alpha], label] = color_match.match(r, g, b, alpha, this);
             key = this.make_key(r, g, b, alpha)
         }
 
@@ -53,6 +61,8 @@ class ColorLegend {
             this.color_index.set( key, this.color_index.size + 1 );
             index = this.color_index.get(key);
         }
+        
+        this.color_labels.set(key, label);
         return [index, [r,g,b,alpha]];
     }
 
@@ -81,7 +91,7 @@ class ColorMatchThreshold{
             }
         }
 
-        return [r, g, b, alpha]
+        return [r, g, b, alpha], "";
     }
 }
 
@@ -95,6 +105,7 @@ class ColorMatchPalette{
 
         let best_color = false;
         let best_match = Number.MAX_SAFE_INTEGER;
+        let best_label = false;
 
         for (var [label, to_match] of this.color_palette) {
             const [r2, g2, b2, alpha2] = to_match
@@ -102,9 +113,10 @@ class ColorMatchPalette{
             if(diff <= best_match){
                 best_color = [r2, g2, b2, alpha2];
                 best_match = diff;
+                best_label = label;
             }
         }
 
-        return best_color;
+        return [best_color, best_label];
     }
 }

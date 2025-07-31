@@ -119,12 +119,16 @@
                     const color_swatch = document.createElement("span");
                     const color_index = document.createElement("span");
                     const color_count = document.createElement("span");
+                    
+                    const index = Number(COLOR_LEGEND.get_color_index(key))
+                    const label = COLOR_LEGEND.get_color_label(key) || ''
+
                     color_line.append(color_swatch);
                     color_line.append(color_count);
                     color_swatch.append(color_index);
                     newLegend.push(color_line);
 
-                    color_count.innerHTML = value;
+                    color_count.innerHTML = `${label}: ${value}`;
 
                     const [r,g,b,a] = key.split(",").map(Number);
                     color_swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
@@ -135,7 +139,7 @@
                     color_index.classList.add('color_index');
                     color_index.classList.add( is_light(r,g,b) ? 'light' : 'dark' );
                     
-                    color_index.innerHTML = COLOR_LEGEND.get_color_index(key)
+                    color_index.innerHTML = "" + index
 
                 });
 
