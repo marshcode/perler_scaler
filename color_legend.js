@@ -10,7 +10,6 @@ class ColorLegend {
     clear() {
         this.color_legend.clear();
         this.color_index.clear();
-        this.color_ignore.clear();
         this.color_labels.clear();
     }   
 
@@ -32,6 +31,7 @@ class ColorLegend {
 
     is_color_ignored(color_array){
         var check_key = this.make_key(color_array[0], color_array[1], color_array[2], '');
+        console.log(this.color_ignore)
         return this.color_ignore.has(check_key);
     }
 
