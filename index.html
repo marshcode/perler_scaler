@@ -16,6 +16,7 @@
             const GRID_SIZE_HALF = 11;
             let COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
             let COLOR_IGNORE_LIST;
+            let COLOR_MATCH;
 
             ////////////////////
             // Variables
@@ -48,13 +49,21 @@
                 COLOR_IGNORE_LIST.add_color(r, g, b, "");
             }
 
-            function set_scale_onclick(grid_to_color, canvas_scale){
+            function set_scale_onclick(grid_to_color){
                 let onclick = function(){
                     let scale = document.getElementById('scale_input').value
                     let grid_w = document.getElementById('grid_w_input').value
                     let grid_h = document.getElementById('grid_h_input').value
-                    let color_match = document.getElementById('color_match').value
-                    do_scale(grid_w, grid_h, scale, grid_to_color, canvas_scale, Number(color_match)); 
+
+                    let color_match = false;
+
+                    let color_match_threshold = Number(document.getElementById('color_match').value)
+                    if (color_match_threshold > 0){
+                        color_match = new ColorMatchThreshold(Number(color_match_threshold));
+                    }
+                    
+
+                    do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
                 }
 
                 document.getElementById('scale_button').addEventListener('click', onclick, false)
@@ -173,7 +182,7 @@
                         return pixel_data;
                     }
                     set_scale_options(canvas.width+1, canvas.height+1);
-                    set_scale_onclick(image_grid_color, GRID_SIZE * 1.2);
+                    set_scale_onclick(image_grid_color);
                 }
             }
 

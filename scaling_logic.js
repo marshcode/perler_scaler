@@ -1,4 +1,4 @@
-            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, canvas_scale, color_match){
+            var do_scale = function(grid_x_max, grid_y_max, scale, get_color_for_grid, color_match){
                 const scale_canvas = document.getElementById("canvas_scale");
                 const scale_context = scale_canvas.getContext("2d");
 
@@ -6,13 +6,6 @@
                 const debug_context = scale_debug.getContext("2d");
 
                 COLOR_LEGEND.clear();
-
-                if(!canvas_scale){
-                    canvas_scale = 1;
-                }
-
-                //scale_canvas.width = canvas.width * scale * canvas_scale;
-                //scale_canvas.height = canvas.height * scale* canvas_scale;
 
                 resize_canvas('canvas_scale', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE);
 
