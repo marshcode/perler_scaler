@@ -66,7 +66,7 @@
 
             function handle_json(palette){
                 const json_str = JSON.stringify(palette, null, 0);
-                document.getElementById('palette_json').innerText = json_str.replaceAll("],", ']\n');
+                document.getElementById('palette_json').innerText = json_str.replaceAll("],", '],\n');
                 window.localStorage.setItem("palette", json_str);
             }
 
