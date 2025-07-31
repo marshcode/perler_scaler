@@ -8,6 +8,8 @@
         <script type="text/javascript" src="./scaling_logic.js"></script>
         <script type="text/javascript" src="./color_legend.js"></script>
         <script type="text/javascript" src="./color_list.js"></script>
+        <script type="text/javascript" src="./image_input.js"></script>
+        <script type="text/javascript" src="./load_palette.js"></script>
         <script>
             /////////////////
             // Constants
@@ -17,6 +19,7 @@
             let COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
             let COLOR_IGNORE_LIST;
             let COLOR_MATCH;
+            let COLOR_PALETTE_LIST;
 
             ////////////////////
             // Variables
@@ -35,10 +38,29 @@
                 }, false);
 
                 document.getElementById('color_match_ignore').addEventListener('change', add_color_ignore, false);
+                document.getElementById('color_match_algo').addEventListener('change', color_match_swap)
 
                 COLOR_IGNORE_LIST = new ColorList(document.getElementById('color_match_ignore_list'));
+                
+                load_palette('palettes/palette.json', function(palette){
+                    COLOR_PALETTE_LIST = new ColorList(document.getElementById('perlet_palette_list'))
+                    for(color_name in palette){
+                        let [r, g, b] = palette[color_name];
+                        COLOR_PALETTE_LIST.add_color(r, g, b, color_name);
+                    }
+                })
             
             };
+
+            function color_match_swap(e){
+                for(let panel of document.getElementsByClassName('color_match_panel')){
+                    if(panel.id === `color_match_${e.target.value}`){
+                        panel.style.display = "block";
+                    } else {
+                        panel.style.display = "none";
+                    }   
+                }
+            }
 
             function add_color_ignore(){
                 const color_ignore = document.getElementById('color_match_ignore').value;
@@ -128,69 +150,6 @@
             /////////////////////////
             //Source: Image Logic
             /////////////////////////
-            function drawpattern(ev) {
-                var canvas = document.getElementById('canvas')
-
-                var ctx = canvas.getContext('2d'),
-                    img = new Image(),
-                    f = document.getElementById("uploadpattern").files[0],
-                    url = window.URL || window.webkitURL,
-                    src = url.createObjectURL(f);
-
-                img.src = src;
-
-                img.onload = function() {
-                    resize_canvas('canvas', this.width, this.height);
-                    // consider bringing this down for larger images
-                    ctx.drawImage(img, 0, 0);
-                    copy_canvas(canvas, backCanvas, 0, 0)
-                    url.revokeObjectURL(src);
-
-                    // this lets us use other formats in the future
-                    const image_grid_color = function(x, y){
-                        const canvas = document.getElementById("canvas");
-                        const ctx = canvas.getContext("2d");
-                        return get_color_at_grid_point(x, y, ctx);
-                    }
-
-                    set_scale_options(canvas.width / GRID_SIZE, canvas.height / GRID_SIZE);
-                    set_scale_onclick(image_grid_color);
-                }
-            }
-
-            function drawsprite(ev) {
-                var canvas = document.getElementById('canvas')
-                var ctx = canvas.getContext('2d'),
-                    img = new Image(),
-                    f = document.getElementById("uploadsprite").files[0],
-                    url = window.URL || window.webkitURL,
-                    src = url.createObjectURL(f);
-
-
-                    img.src = src;
-                    img.onload = function() {
-                        resize_canvas('canvas', this.width, this.height);
-                        // consider bringing this down for larger images
-                        ctx.drawImage(img, 0, 0);
-                        url.revokeObjectURL(src);
-
-                    // this lets us use other formats in the future
-                    const image_grid_color = function(x, y){
-                        const canvas = document.getElementById("canvas");
-                        const ctx = canvas.getContext("2d");
-                        const pixel_data = ctx.getImageData(x-1, y-1, 1, 1).data;
-                        
-                        alpha = pixel_data[3]
-                        if(alpha > 0){
-                            pixel_data[3] = 255;
-                        }
-
-                        return pixel_data;
-                    }
-                    set_scale_options(canvas.width+1, canvas.height+1);
-                    set_scale_onclick(image_grid_color);
-                }
-            }
 
             var get_color_at_grid_point = function(grid_x, grid_y, canvas_context){
 
@@ -260,24 +219,37 @@
             <fieldset>
                 <legend>
                     Color Match 
-                    <select id="color_match_algo">
-                        <option value="threshold">Threshold</option>
-                    </select>
                 </legend>
-                <div id="color_match_threshold">
-                    Color Match:  0
-                    <div class="slider_container">
-                        <input type="range" id='color_match' name="color_match" 
-                        oninput="color_match_disp.value = color_match.value"
-                        class="slider"
-                        min="0" max="255" value="0" />
-                        <output class="slider_output" id="color_match_disp">0</output> 
+                Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
+                <div id="color_match_ignore_list" class="color_list"></div>
+                <fieldset>
+                    <legend>
+                        <select id="color_match_algo">
+                            <option value="none" selected>None</option>
+                            <option value="threshold">Threshold</option>
+                            <option value="palette">Palette</option>
+                        </select>
+                    </legend>
+
+                    <div id="color_match_threshold" class="color_match_panel">
+                        Color Match:  0
+                        <div class="slider_container">
+                            <input type="range" id='color_match' name="color_match" 
+                            oninput="color_match_disp.value = color_match.value"
+                            class="slider"
+                            min="0" max="255" value="0" />
+                            <output class="slider_output" id="color_match_disp">0</output> 
+                        </div>
+                        255
+                        <br />
                     </div>
-                    255
-                    <br />
-                    Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
-                    <div id="color_match_ignore_list" class="color_list"></div>
-                </div>
+                    <div id="color_match_palette" class="color_match_panel">
+                        Perler Palette
+                        <div id="perlet_palette_list" class="color_list"></div>
+                    </div>
+                </fieldset>
+
+
             </fieldset>
         </div>
 
