@@ -1,0 +1,129 @@
+<html>
+
+    <head>
+        <title>Palette Gen</title>
+
+
+        <style type="text/css">
+
+            #body_container{
+                display: flex;
+            }
+
+            #image_container{
+                display: flex;
+                flex-direction: column;
+                width:50%
+            }
+            
+            #palette_container{
+                width:50%
+            }
+            img {
+                width:500px;
+                height:auto;
+                border: solid thin black;
+                display: None;
+            }
+
+        </style>
+
+        <script type="text/javascript">
+
+            var PALETTE = {};
+            var DATA = {}
+            var prefix;
+            var id;
+
+            function select_change(e){
+                image_id = e.target.value
+                
+                var image_element = document.getElementById(`image_${image_id}`);
+
+
+                Array.from(document.getElementsByTagName('img')).forEach(img=>{
+                    img.style.display='none';
+                })
+
+                image_element.style.display='block';
+                [prefix, id] = DATA[image_element.id];
+
+            }
+
+            function color_select(e){
+                const color = document.getElementById('color_picker').value;
+                const r = parseInt(color.substr(1, 2), 16);
+                const g = parseInt(color.substr(3, 2), 16);
+                const b = parseInt(color.substr(5, 2), 16);
+
+                PALETTE[`${prefix}_${id}`] = [r,g,b]
+                id+=10;
+
+                handle_json(PALETTE);
+
+
+            }
+
+            function handle_json(palette){
+                const json_str = JSON.stringify(palette, null, 0);
+                document.getElementById('palette_json').innerText = json_str.replaceAll("],", ']\n');
+                window.localStorage.setItem("palette", json_str);
+            }
+
+            window.onload = function() {
+
+
+                PALETTE = JSON.parse(window.localStorage.getItem("palette") || '{}');  
+                handle_json(PALETTE);
+
+                document.getElementById('image_selector').addEventListener('change', select_change)
+                document.getElementById('color_picker').addEventListener('change', color_select)
+
+
+                var image_list = [
+                    ["red.jpg", 'R', 10], 
+                    ['orange.jpg', "OR", 10]
+                ];
+
+                const image_container = document.getElementById('image_container');
+
+
+                for(let image of image_list){
+                    let [path, prefix, start] = image
+
+                    
+                    const image_id = `image_${path}`;
+                    const imageElm = document.createElement('img');
+                    imageElm.setAttribute('src', `images/${path}`);
+                    imageElm.setAttribute('id', `image_${path}`)
+                    image_container.append(imageElm);
+                    DATA[image_id] = [prefix, start]
+
+
+                    var select = document.getElementById('image_selector');
+                    var option = document.createElement('option');
+                    option.value = path;
+                    option.text = path;
+                    select.appendChild(option);
+                }
+            }
+
+
+        </script>
+
+    </head>
+    <body>
+
+        <div id="body_container">
+
+            <div id="image_container">
+                <select id="image_selector"><option disabled selected>Pick Please</option></select>
+            </div>
+            <div id="palette_container">
+                <input type="color" id="color_picker">
+                <pre id="palette_json"></pre>
+            </div>
+        </div>
+
+    </body>
+</html>
