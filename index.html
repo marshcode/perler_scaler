@@ -40,6 +40,7 @@
 
                 document.getElementById('color_match_ignore').addEventListener('change', add_color_ignore, false);
                 document.getElementById('color_match_algo').addEventListener('change', color_match_swap)
+                document.getElementById('color_override_action').addEventListener('click', color_override_action);
 
                 COLOR_IGNORE_LIST = new ColorList(document.getElementById('color_match_ignore_list'));
                 
@@ -53,6 +54,29 @@
             
             };
 
+
+            const color_override_action = function(){
+                const override_input = document.getElementById('color_override_input').value;
+                const override_output = document.getElementById('color_override_output').value;
+                const override_table_body = document.querySelector('#color_override_table tbody');
+
+                const [r_in, g_in, b_in] = get_rgb_from_hex(override_input);
+                const [r_out, g_out, b_out] = get_rgb_from_hex(override_input);
+
+                table_row = document.createElement('tr');
+                color_input = document.createElement('td');
+                color_output = document.createElement('td');
+                table_row.append(color_input);
+                table_row.append(color_output);
+
+
+                color_input.style.backgroundColor = `rgb(${r_in}, ${g_in}, ${b_in})`;
+                color_output.style.backgroundColor = `rgb(${r_out}, ${g_out}, ${b_out})`;
+                override_table_body.appendChild(table_row);
+
+
+            }
+
             function color_match_swap(e){
                 for(let panel of document.getElementsByClassName('color_match_panel')){
                     if(panel.id === `color_match_${e.target.value}`){
@@ -63,11 +87,16 @@
                 }
             }
 
+            function get_rgb_from_hex(hex){
+                const r = parseInt(hex.substr(1, 2), 16);
+                const g = parseInt(hex.substr(3, 2), 16);
+                const b = parseInt(hex.substr(5, 2), 16);
+                return [r, g, b]
+            }
+
             function add_color_ignore(){
                 const color_ignore = document.getElementById('color_match_ignore').value;
-                const r = parseInt(color_ignore.substr(1, 2), 16);
-                const g = parseInt(color_ignore.substr(3, 2), 16);
-                const b = parseInt(color_ignore.substr(5, 2), 16);
+                const [r,g,b] = get_rgb_from_hex(color_ignore);
                 COLOR_LEGEND.add_color_ignore(r, g, b);
                 COLOR_IGNORE_LIST.add_color(r, g, b, "");
             }
@@ -88,6 +117,16 @@
                         }
                     } else if(color_match_algo == 'palette'){
                         color_match = new ColorMatchPalette(COLOR_PALETTE_LIST.colors, color_conversion_algo);
+                    }
+
+                    const color_override = false;
+                    if(color_override){
+                        const original_grid_to_color = grid_to_color;
+                        const grid_override = function(x, y){
+                            const color = original_grid_to_color(x, y);
+                            return color;
+                        }
+                        grid_to_color = grid_override;
                     }
 
                     do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
@@ -228,6 +267,26 @@
                 </div>
                 
                 <input type="button" id="scale_button" value="Scale" /> 
+            </fieldset>
+            <fieldset>
+                <legend>Color Override</legend>
+                <div class="form-row">
+                    <label for="color_override_input">Input&nbsp;Color:</label> 
+                    <input type="color" id="color_override_input">          
+                </div>
+                <div class="form-row">
+                    <label for="color_override_output">Output&nbsp;Color:</label> 
+                    <input type="color" id="color_override_output">          
+                </div>
+                <input type="button" value="Add Override" id="color_override_action">
+                <table id="color_override_table">
+                    <thead>
+                        <tr>
+                            <th>Input Color</th><th>Output Color</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </fieldset>
             <fieldset>
                 <legend>

@@ -132,3 +132,20 @@
     color: white;
     border: 0;
 }
+
+#color_override_table{
+    margin-top: 10px;
+}
+
+#color_override_table, 
+#color_override_table th, 
+#color_override_table td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 0px 5px;
+}
+
+#color_override_table td {
+    height:1em;
+}
+
