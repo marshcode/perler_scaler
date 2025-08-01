@@ -4,6 +4,7 @@
         <title>Pokemon Pearler Scaler</title>
         <link rel="stylesheet" href="./style.css">
 
+        <script type="text/javascript" src="./lib/color_convert.js"></script>
         <script type="text/javascript" src="./canvas_util.js"></script>
         <script type="text/javascript" src="./scaling_logic.js"></script>
         <script type="text/javascript" src="./color_legend.js"></script>
@@ -211,18 +212,39 @@
         <div class="side_by_side">
             <fieldset>
                 <legend>Scaling Options</legend>
-                Scale: <input type="number" id = 'scale_input' name="scale" min="1" value="1"/> <br />
-                Grid Width: <input type="number" id='grid_w_input' name="grid_w" min="1"/> <br />
-                Grid Height: <input type="number" id='grid_h_input' name="grid_h" min="1" /> <br />
-
+                <div class="form-row">
+                    <label for="scale_input">Scale:</label>
+                    <input type="number" id = 'scale_input' name="scale" min="1" value="1"/> 
+                </div>
+                <div class="form-row">
+                    <label for="grid_w_input">Grid&nbsp;Width:</label>
+                    <input type="number" id='grid_w_input' name="grid_w" min="1"/> 
+                </div>
+                <div class="form-row">
+                    <label for="grid_h_input">Grid&nbsp;Height:</label>
+                    <input type="number" id='grid_h_input' name="grid_h" min="1" /> 
+                </div>
+                
                 <input type="button" id="scale_button" value="Scale" /> 
             </fieldset>
             <fieldset>
                 <legend>
                     Color Match 
                 </legend>
-                Color Match Ignore: <input type="color" id="color_match_ignore"> <br />
-                <div id="color_match_ignore_list" class="color_list"></div>
+                <div class="form-row">
+                    <label for="color_match_ignore">Match&nbsp;Ignore:</label> 
+                    <input type="color" id="color_match_ignore">          
+                </div>
+                
+                <div id="color_match_ignore_list" class="color_list row"></div>
+
+                <div class="form-row">
+                    <label for="color_conversion_algo">Color Conversion:</label>
+                    <select id="color_conversion_algo">
+                        <option value="rgb_distance">RGB Distance</option>
+                    </select>
+                </div>
+
                 <fieldset>
                     <legend>
                         <select id="color_match_algo">
