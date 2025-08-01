@@ -65,7 +65,11 @@
             }
 
             function draw_swatches(prefix){
-                const keys = Object.keys(PALETTE).filter(k=>k.startsWith(prefix)).sort();
+                const keys = Object.keys(PALETTE).filter(k=>k.startsWith(prefix)).sort(function(a,b){
+                    a_id = Number(a.split("_")[1])
+                    b_id = Number(b.split("_")[1])
+                    return a_id - b_id;
+                });
                 const swatches = document.getElementById('color_swatches');
                 swatches.innerHTML=''
                 for(k of keys){
