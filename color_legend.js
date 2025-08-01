@@ -106,6 +106,10 @@ const ColorComparisons = Object.freeze({
             const weightB = 2 + (255 - rmean) / 256;
             return Math.sqrt((weightR * r * r) + (weightG * g * g) + (weightB * b * b))
         }
+    },
+    "CIE76":{
+        'convert': function(r, g, b) { return color_convert.rgb.lab([r, g, b])},
+        'compare': function(lab1, lab2){return euclidian_distance(lab1, lab2, 3) }
     }
 })
 

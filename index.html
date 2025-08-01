@@ -135,6 +135,7 @@
                     const [r,g,b,a] = key.split(",").map(Number);
                     color_swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
                     color_swatch.setAttribute('class', 'color_swatch');
+                    color_swatch.setAttribute('title', `rgb(${r},${g},${b})`)
 
                     
                     
@@ -244,8 +245,7 @@
                     <select id="color_conversion_algo">
                         <option value="rgb_distance">RGB Distance</option>
                         <option value="RGB_DISTANCE_WEIGHTED">RGB Distance Weighted</option>
-
-                        
+                        <option value="CIE76">CIE76 (LAB + DELTAE)</option>
                     </select>
                 </div>
 
