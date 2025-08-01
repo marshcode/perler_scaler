@@ -26,6 +26,13 @@
                 display: None;
             }
 
+            .color_swatch{
+                width:  20px;
+                height: 20px;
+                display: inline-block;
+                border: solid thin black;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -34,12 +41,47 @@
             var DATA = {}
             var prefix;
             var id;
+            var last_point = []
+
+            function track_mouse(e){
+                last_point = [e.pageX, e.pageY]
+            }
+
+            function draw_color_at_point(x, y, rgb){
+                const span = document.createElement('span');
+                span.classList.add('color_swatch');
+                span.style.top=y-10;
+                span.style.left=x-10;
+                span.style.position='absolute';
+                span.style.backgroundColor=`rgb(${rgb[0]}, ${rgb[1]},${rgb[2]})`;
+                document.body.append(span);
+            }
+
+            function draw_color_in_element(rgb, element){
+                const span = document.createElement('span');
+                span.classList.add('color_swatch');
+                span.style.backgroundColor=`rgb(${rgb[0]}, ${rgb[1]},${rgb[2]})`;
+                element.appendChild(span);
+            }
+
+            function draw_swatches(prefix){
+                const keys = Object.keys(PALETTE).filter(k=>k.startsWith(prefix)).sort();
+                const swatches = document.getElementById('color_swatches');
+                swatches.innerHTML=''
+                for(k of keys){
+                    rgb = PALETTE[k];
+                    draw_color_in_element(rgb, swatches);
+                }
+            }
 
             function select_change(e){
                 image_id = e.target.value
                 
                 var image_element = document.getElementById(`image_${image_id}`);
 
+                Array.from(document.getElementsByClassName('color_swatch')).forEach(swatch=>{
+                    swatch.remove();
+                })
 
                 Array.from(document.getElementsByTagName('img')).forEach(img=>{
                     img.style.display='none';
@@ -47,6 +89,7 @@
 
                 image_element.style.display='block';
                 [prefix, id] = DATA[image_element.id];
+                draw_swatches(prefix);
 
             }
 
@@ -60,6 +103,8 @@
                 id+=10;
 
                 handle_json(PALETTE);
+                draw_color_at_point(last_point[0], last_point[1], [r,g,b])
+                draw_swatches(prefix);
 
 
             }
@@ -78,7 +123,7 @@
 
                 document.getElementById('image_selector').addEventListener('change', select_change)
                 document.getElementById('color_picker').addEventListener('change', color_select)
-
+                document.getElementById('image_container').addEventListener('mousemove', track_mouse)
 
                 var image_list = [
                     ["red.jpg", 'R', 10], 
@@ -141,6 +186,7 @@
 
             <div id="image_container">
                 <select id="image_selector"><option disabled selected>Pick Please</option></select>
+                <div id="color_swatches" ></div>
             </div>
             <div id="palette_container">
                 <input type="color" id="color_picker">
