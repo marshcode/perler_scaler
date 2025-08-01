@@ -75,6 +75,10 @@ class ColorLegend {
 }
 
 
+const COLOR_INDEX = Object.freeze({
+    "RED": 0, "GREEN": 1, "BLUE": 2
+})
+
 const euclidian_distance = function (thing1, thing2, cardinalilty) {
     thing3 = [];
     for (let i = 0; i < cardinalilty; i++) {
@@ -88,8 +92,35 @@ const ColorComparisons = Object.freeze({
     'RGB_DISTANCE': {
         'convert': function (r, g, b) { return [r, g, b] },
         'compare': (rgb1, rgb2) => euclidian_distance(rgb1, rgb2, 3)
+    },
+    'RGB_DISTANCE_WEIGHTED':{
+        'convert': function (r, g, b) { return [r, g, b] },
+        'compare': (rgb1, rgb2) => {
+            const rmean = (rgb1[COLOR_INDEX.RED] + rgb2[COLOR_INDEX.RED]) / 2;
+            const r = rgb1[COLOR_INDEX.RED] - rgb2[COLOR_INDEX.RED]; 
+            const g = rgb1[COLOR_INDEX.GREEN] - rgb2[COLOR_INDEX.GREEN]; 
+            const b = rgb1[COLOR_INDEX.BLUE] - rgb2[COLOR_INDEX.BLUE]; 
+
+            const weightR = 2 + rmean / 256;
+            const weightG = 4.0
+            const weightB = 2 + (255 - rmean) / 256;
+            return Math.sqrt((weightR * r * r) + (weightG * g * g) + (weightB * b * b))
+        }
     }
 })
+
+
+
+//public double colourDistance(int red1, int green1, int blue1, int red2, int green2, int blue2) {
+//  double rmean = (red1 + red2) / 2;
+//  int r = red1 - red2;
+//  int g = green1 - green2;
+//  int b = blue1 - blue2;
+//  double weightR = 2 + rmean / 256;
+//  double weightG = 4.0;
+//  double weightB = 2 + (255 - rmean) / 256;
+//  return Math.sqrt(weightR * r * r + weightG * g * g + weightB * b * b);
+//}
 
 class ColorCompare {
 
