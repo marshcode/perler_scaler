@@ -65,6 +65,8 @@
     flex-direction: column;
     flex-wrap: wrap;
     max-height: 250px;
+    max-width: 250px;
+    overflow: scroll;
 }
 
 .color_list.row{
