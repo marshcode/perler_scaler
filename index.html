@@ -21,6 +21,7 @@
             let COLOR_IGNORE_LIST;
             let COLOR_MATCH;
             let COLOR_PALETTE_LIST;
+            let COLOR_OVERRIDE = new Map();
 
             ////////////////////
             // Variables
@@ -61,7 +62,7 @@
                 const override_table_body = document.querySelector('#color_override_table tbody');
 
                 const [r_in, g_in, b_in] = get_rgb_from_hex(override_input);
-                const [r_out, g_out, b_out] = get_rgb_from_hex(override_input);
+                const [r_out, g_out, b_out] = get_rgb_from_hex(override_output);
 
                 table_row = document.createElement('tr');
                 color_input = document.createElement('td');
@@ -73,7 +74,7 @@
                 color_input.style.backgroundColor = `rgb(${r_in}, ${g_in}, ${b_in})`;
                 color_output.style.backgroundColor = `rgb(${r_out}, ${g_out}, ${b_out})`;
                 override_table_body.appendChild(table_row);
-
+                COLOR_OVERRIDE.set(JSON.stringify([r_in, g_in, b_in]), [r_out, g_out, b_out, 255])
 
             }
 
@@ -120,10 +121,18 @@
                     }
 
                     const color_override = false;
-                    if(color_override){
+                    if(COLOR_OVERRIDE.size > 0){
                         const original_grid_to_color = grid_to_color;
                         const grid_override = function(x, y){
+
                             const color = original_grid_to_color(x, y);
+                            const color_key = JSON.stringify([color[0],color[1],color[2]]);
+                            const overide_color = COLOR_OVERRIDE.get(color_key)
+                            console.log(color, color_key, overide_color, COLOR_OVERRIDE)
+                            if(overide_color){
+                                return overide_color;
+                            }
+                            
                             return color;
                         }
                         grid_to_color = grid_override;
@@ -269,26 +278,6 @@
                 <input type="button" id="scale_button" value="Scale" /> 
             </fieldset>
             <fieldset>
-                <legend>Color Override</legend>
-                <div class="form-row">
-                    <label for="color_override_input">Input&nbsp;Color:</label> 
-                    <input type="color" id="color_override_input">          
-                </div>
-                <div class="form-row">
-                    <label for="color_override_output">Output&nbsp;Color:</label> 
-                    <input type="color" id="color_override_output">          
-                </div>
-                <input type="button" value="Add Override" id="color_override_action">
-                <table id="color_override_table">
-                    <thead>
-                        <tr>
-                            <th>Input Color</th><th>Output Color</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </fieldset>
-            <fieldset>
                 <legend>
                     Color Match 
                 </legend>
@@ -335,8 +324,26 @@
                         <div id="perlet_palette_list" class="color_list"></div>
                     </div>
                 </fieldset>
-
-
+            </fieldset>
+            <fieldset>
+                <legend>Color Override</legend>
+                <div class="form-row">
+                    <label for="color_override_input">Input&nbsp;Color:</label> 
+                    <input type="color" id="color_override_input">          
+                </div>
+                <div class="form-row">
+                    <label for="color_override_output">Output&nbsp;Color:</label> 
+                    <input type="color" id="color_override_output">          
+                </div>
+                <input type="button" value="Add Override" id="color_override_action">
+                <table id="color_override_table">
+                    <thead>
+                        <tr>
+                            <th>Input Color</th><th>Output Color</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </fieldset>
         </div>
 
