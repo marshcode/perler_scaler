@@ -43,6 +43,11 @@
                 document.getElementById('color_match_algo').addEventListener('change', color_match_swap)
                 document.getElementById('color_override_action').addEventListener('click', color_override_action);
 
+                document.getElementById('show_original_overlay').addEventListener('change', function(e){
+                    const original_overlay = document.getElementById('canvas_scale_original')
+                    original_overlay.style.display = e.target.checked ? 'block' : 'none';
+                })
+
                 COLOR_IGNORE_LIST = new ColorList(document.getElementById('color_match_ignore_list'));
                 
                 load_palette('palettes/palette.json', function(palette){
@@ -358,9 +363,11 @@
 
             <fieldset>
                 <legend>Scale</legend>
+                <label>Original Overlay: <input type='checkbox' id="show_original_overlay"></label>
                 <div class="canvas_layers">
                     <canvas id="canvas_scale" width="500"></canvas>
                     <canvas id="canvas_scale_debug" class="canvas_layer"></canvas>
+                    <canvas id="canvas_scale_original" class="canvas_layer"></canvas>
                 </div>
             </fieldset> 
             <fieldset>

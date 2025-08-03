@@ -12,6 +12,10 @@
     top:0;
 }
 
+#canvas_scale_original{
+    display: none;
+}
+
 #legend_container {
     display: flex;
     flex-direction: column;

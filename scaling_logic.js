@@ -5,9 +5,13 @@
                 const scale_debug = document.getElementById("canvas_scale_debug");
                 const debug_context = scale_debug.getContext("2d");
 
+                const canvas_scale_original = document.getElementById('canvas_scale_original');
+                const original_context = canvas_scale_original.getContext("2d");
+
                 COLOR_LEGEND.clear();
 
                 resize_canvas('canvas_scale', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE);
+                resize_canvas('canvas_scale_original', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE)
 
                 //draw number grid
                 for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
@@ -26,6 +30,7 @@
                         const [color_index, new_color, label] = COLOR_LEGEND.add(color[0], color[1], color[2], color[3], color_match);
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
+                            draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, original_context);
 
                             const style = is_light(new_color[0], new_color[1], new_color[2]) ? "white" : "black";
                             draw_styled_text(scale_coord['scale_x'], scale_coord['scale_y'], ""+color_index,  style, debug_context);
