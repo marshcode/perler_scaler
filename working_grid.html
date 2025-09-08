@@ -8,11 +8,16 @@
                 position: relative;
             }
 
-            .grid_piece{
+            .cell{
                 position:absolute;
                 display:flex;
                 justify-content:center;
                 align-items:center;
+            }
+
+            .side_by_side {
+                display: flex;
+                flex-direction: row
             }
         </style>
 
@@ -20,8 +25,11 @@
 
             var DATA = {};
             var GRID = {};
+            var PALETTE = {};
+            
+            
             var WORKING_GRID;
-
+            var GRID_SELECT;
 
             function is_light(r,g,b){
                 brightness=0.2126*r + 0.7152*g + 0.0722*b;
@@ -30,28 +38,82 @@
 
             var set_grid = function(x, y, label, color, grid_width){
 
-                var grid_piece = document.createElement('div');
-                grid_piece.className = 'grid_piece'
-                grid_piece.style.left = '' + (x*grid_width);
-                grid_piece.style.top = '' + (y*grid_width);
+                var cell = document.createElement('div');
+                cell.className = 'cell'
+                cell.style.left = '' + (x*grid_width);
+                cell.style.top = '' + (y*grid_width);
 
-                grid_piece.style.width = '' + grid_width;
-                grid_piece.style.height = '' + grid_width;
+                cell.style.width = '' + grid_width;
+                cell.style.height = '' + grid_width;
 
-                grid_piece.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-                grid_piece.innerHTML = label
+                cell.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                cell.innerHTML = label
 
                 if(is_light(color[0], color[1], color[2])){
-                    grid_piece.style.color = 'white';
+                    cell.style.color = 'white';
                 }
 
-                WORKING_GRID.append(grid_piece);
+                WORKING_GRID.append(cell);
+
+            }
+
+            var handle_upload = function(e){
+                const reader = new FileReader();
+                reader.onload = function() {
+                        json_data = JSON.parse(reader.result)
+
+
+                        for(var palette in json_data['palettes']){
+                            PALETTE[palette] = json_data['palettes'][palette]
+                        }
+
+                        for(var grid in json_data['grids']){
+                            add_to_grid_select(grid);
+                            GRID[grid] = json_data['grids'][grid]
+                        }
+
+                     };
+                reader.readAsText(e.target.files[0]);
+            }
+
+            var add_to_grid_select = function(label){
+                var option = document.createElement('option');
+                option.innerHTML = label;
+
+                GRID_SELECT.append(option);
+            }
+
+            var draw_grid = function(grid_name){
+
+                var grid_data = GRID[grid_name];
+                var palette = grid_data['palette']
+                var grid_colors = grid_data['data']
+
+                for(var y=0; y<grid_colors.length; y++){
+                    var x_grid = grid_colors[y];
+                    for(var x=0; x<x_grid.length; x++){
+                        var cell = x_grid[x];
+                        var color = PALETTE[palette][cell];
+                        if(cell){
+                            set_grid(x, y, cell, color, 25)
+                        }
+                    }
+                }
 
             }
 
             window.onload = function(){
 
                 WORKING_GRID = document.getElementById("working_grid");
+                GRID_SELECT = document.getElementById("grid_select");
+
+                document.getElementById("upload_pattern").addEventListener("change", handle_upload, false);
+                document.getElementById("grid_draw").addEventListener('click', function(){
+
+                    var grid_size = document.getElementById("grid_size").value;
+                    var grid = GRID_SELECT.value;
+                    draw_grid(grid, grid_size);
+                })
 
             };
 
@@ -62,9 +124,22 @@
 
     <body>
 
-        <div id="working_grid">
+    <div class="side_by_side">
+        <fieldset>
+            <legend>Load Data</legend>
+            <input type='file' name='upload_pattern' size='65' id='upload_pattern' />
+        </fieldset>
+        <fieldset>
+            <legend>Grid Data</legend>
+            <select id="grid_select"></select>
+            <input id="grid_draw" type="button" value="draw" />
+            <input type="hidden" id="grid_size" value="25" />
+        </fieldset>
+    </div>
 
-        </div>
+    <div id="working_grid">
+
+    </div>
 
 
     </body>
