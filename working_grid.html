@@ -19,6 +19,13 @@
                 display: flex;
                 flex-direction: row
             }
+
+            #palette_draw div{
+                width: 1em;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+            }
         </style>
 
         <script>
@@ -31,14 +38,27 @@
             var WORKING_GRID;
             var GRID_SELECT;
 
+            var PALETTE_SELECT;
+            var PALETTE_DRAW;
+
             function is_light(r,g,b){
                 brightness=0.2126*r + 0.7152*g + 0.0722*b;
                 return brightness < 128;
             }
 
+            var create_cell = function(label, color){
+                var cell = document.createElement('div');
+                cell.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                cell.innerHTML = label;
+                if(is_light(color[0], color[1], color[2])){
+                    cell.style.color = 'white';
+                }
+                return cell;
+            }
+
             var set_grid = function(x, y, label, color, grid_width){
 
-                var cell = document.createElement('div');
+                var cell = create_cell(label, color);
                 cell.className = 'cell'
                 cell.style.left = '' + (x*grid_width);
                 cell.style.top = '' + (y*grid_width);
@@ -46,12 +66,9 @@
                 cell.style.width = '' + grid_width;
                 cell.style.height = '' + grid_width;
 
-                cell.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-                cell.innerHTML = label
 
-                if(is_light(color[0], color[1], color[2])){
-                    cell.style.color = 'white';
-                }
+
+
 
                 WORKING_GRID.append(cell);
 
@@ -65,10 +82,11 @@
 
                         for(var palette in json_data['palettes']){
                             PALETTE[palette] = json_data['palettes'][palette]
+                            add_to_select(PALETTE_SELECT, palette);
                         }
 
                         for(var grid in json_data['grids']){
-                            add_to_grid_select(grid);
+                            add_to_select(GRID_SELECT, grid);
                             GRID[grid] = json_data['grids'][grid]
                         }
 
@@ -76,11 +94,11 @@
                 reader.readAsText(e.target.files[0]);
             }
 
-            var add_to_grid_select = function(label){
+            var add_to_select = function(SELECT, label){
                 var option = document.createElement('option');
                 option.innerHTML = label;
 
-                GRID_SELECT.append(option);
+                SELECT.append(option);
             }
 
             var draw_grid = function(grid_name){
@@ -102,10 +120,22 @@
 
             }
 
+            var draw_palette = function(palette){
+                PALETTE_DRAW.innerHTML = '';
+                for(palette_id in Object.keys(palette)){
+                    var color = PALETTE[palette][palette_id];
+                    var cell = create_cell(palette_id, color);
+                    PALETTE_DRAW.append(cell);
+
+                }
+            }
+
             window.onload = function(){
 
                 WORKING_GRID = document.getElementById("working_grid");
                 GRID_SELECT = document.getElementById("grid_select");
+                PALETTE_DRAW = document.getElementById("palette_draw");
+                PALETTE_SELECT = document.getElementById('palette_select');
 
                 document.getElementById("upload_pattern").addEventListener("change", handle_upload, false);
                 document.getElementById("grid_draw").addEventListener('click', function(){
@@ -113,6 +143,10 @@
                     var grid_size = document.getElementById("grid_size").value;
                     var grid = GRID_SELECT.value;
                     draw_grid(grid, grid_size);
+                })
+
+                document.getElementById('palette_select').addEventListener('change', function(){
+                    draw_palette(PALETTE_SELECT.value);
                 })
 
             };
@@ -134,6 +168,13 @@
             <select id="grid_select"></select>
             <input id="grid_draw" type="button" value="draw" />
             <input type="hidden" id="grid_size" value="25" />
+        </fieldset>
+        <fieldset>
+            <legend>Palettes</legend>
+            <select id="palette_select">
+                <option disabled selected>Choose an option</option>
+            </select>
+            <div id="palette_draw"></div>
         </fieldset>
     </div>
 
