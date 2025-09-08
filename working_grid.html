@@ -20,8 +20,14 @@
                 flex-direction: row
             }
 
-            #palette_draw div{
+            #palette_draw span{
                 margin-top:5px;
+                display:flex;
+                align-items:center;
+            }
+
+            #palette_draw div{
+
                 width: 1em;
                 display:flex;
                 justify-content:center;
@@ -107,27 +113,39 @@
                 var grid_data = GRID[grid_name];
                 var palette = grid_data['palette']
                 var grid_colors = grid_data['data']
+                var palette_count = {}
 
                 for(var y=0; y<grid_colors.length; y++){
                     var x_grid = grid_colors[y];
                     for(var x=0; x<x_grid.length; x++){
                         var cell = x_grid[x];
                         var color = PALETTE[palette][cell];
+                        palette_count[cell] = (palette_count[cell] || 0) +1;
+
                         if(cell){
                             set_grid(x, y, cell, color, 25)
                         }
                     }
                 }
 
+                draw_palette(palette, palette_count)
+
             }
 
-            var draw_palette = function(palette){
+            var draw_palette = function(palette, palette_labels){
                 PALETTE_DRAW.innerHTML = '';
-                for(palette_id in Object.keys(PALETTE[palette])){
+                palette_labels = palette_labels || {}
+
+                for(palette_id in PALETTE[palette]){
+                    container = document.createElement('span');
                     var color = PALETTE[palette][palette_id];
                     var cell = create_cell(palette_id, color);
-                    PALETTE_DRAW.append(cell);
-
+                    var label = palette_labels[palette_id]
+                    container.append(cell);
+                    if(label){
+                        container.append(" : " + label);
+                    }
+                    PALETTE_DRAW.append(container);
                 }
             }
 
