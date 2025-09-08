@@ -1,0 +1,72 @@
+<html>
+
+    <head>
+        <title>Working Grid</title>
+
+        <style type="text/css">
+            #working_grid{
+                position: relative;
+            }
+
+            .grid_piece{
+                position:absolute;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+            }
+        </style>
+
+        <script>
+
+            var DATA = {};
+            var GRID = {};
+            var WORKING_GRID;
+
+
+            function is_light(r,g,b){
+                brightness=0.2126*r + 0.7152*g + 0.0722*b;
+                return brightness < 128;
+            }
+
+            var set_grid = function(x, y, label, color, grid_width){
+
+                var grid_piece = document.createElement('div');
+                grid_piece.className = 'grid_piece'
+                grid_piece.style.left = '' + (x*grid_width);
+                grid_piece.style.top = '' + (y*grid_width);
+
+                grid_piece.style.width = '' + grid_width;
+                grid_piece.style.height = '' + grid_width;
+
+                grid_piece.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                grid_piece.innerHTML = label
+
+                if(is_light(color[0], color[1], color[2])){
+                    grid_piece.style.color = 'white';
+                }
+
+                WORKING_GRID.append(grid_piece);
+
+            }
+
+            window.onload = function(){
+
+                WORKING_GRID = document.getElementById("working_grid");
+
+            };
+
+        </script>
+
+    </head>
+
+
+    <body>
+
+        <div id="working_grid">
+
+        </div>
+
+
+    </body>
+
+</html>
