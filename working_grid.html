@@ -56,8 +56,9 @@
                 opacity: 10%;
             }
 
-            .working_target{
-                border: solid 3px hotpink;
+            #working_direction_buttons{
+                display: flex;
+                flex-direction: column;
             }
 
         </style>
@@ -74,6 +75,8 @@
 
             var PALETTE_SELECT;
             var PALETTE_DRAW;
+
+            var SELECTED_CELL;
 
             function is_light(r,g,b){
                 brightness=0.2126*r + 0.7152*g + 0.0722*b;
@@ -108,6 +111,8 @@
                 new_width = Math.max(rekt.width, (x+1) * grid_width);
                 WORKING_GRID.style.width = `${new_width}px`
                 cell.setAttribute('data-palette-idx', label);
+                cell.setAttribute('data-grid-x', x)
+                cell.setAttribute('data-grid-y', y)
 
             }
 
@@ -184,6 +189,9 @@
 
 
             var set_selected = function(element){
+                if(!element){
+                    return;
+                }
 
                 document.querySelectorAll('[data-is-selected="true"').forEach(function(element){
                     element.setAttribute('data-is-selected', 'false');
@@ -192,14 +200,50 @@
                 
                  element.setAttribute('data-is-selected', 'true');
                  element.classList.add("selected");
-
+                 SELECTED_CELL = element;
             }
 
-            var set_working_direction = function(element){
-                document.getElementsByName('working_direction').forEach(function(e){
-                    e.classList.remove("working_target")
-                });
-                element.classList.add("working_target");
+            var get_direction_delta = function(){
+                var left_right = document.getElementById('working_left_right').value
+                var up_down = document.getElementById('working_up_down').value
+                var obj = new Object();
+
+                obj.x = left_right == 1 ? 1 : -1
+                obj.y = up_down == 1 ? 1 : -1
+                return obj;
+            }
+
+            var get_next_cell = function(current_selected, delta_x, delta_y){
+
+                if(!current_selected){
+                    return
+                }
+
+                const current_x = Number(SELECTED_CELL.getAttribute('data-grid-x'));
+                const current_y = Number(SELECTED_CELL.getAttribute('data-grid-y'));
+
+
+                const next_x = current_x + delta_x;
+                const next_y = current_y + delta_y;
+                    
+
+                var results =  document.querySelectorAll(`[data-grid-x="${next_x}"][data-grid-y="${next_y}"]`)
+
+                if (results.length > 0){
+                    return results[0]
+                }
+            }
+
+            var move_along_sir = function(){
+
+                const delta = get_direction_delta()
+
+                var next_cell = get_next_cell(SELECTED_CELL, delta.x, 0);
+
+                SELECTED_CELL.classList.add('disabled');
+                set_selected(next_cell);
+                console.log(next_cell);
+
             }
 
             window.onload = function(){
@@ -240,11 +284,16 @@
                     set_selected(e.target);
                 })
 
-                document.getElementById('working_direction_buttons').addEventListener('click', function(e){
-                    if(e.target.nodeName == "INPUT"){
-                        set_working_direction(e.target);    
+                document.body.addEventListener('keypress', function(e){
+                    switch(e.code){
+                        case 'Space':
+                            move_along_sir();
+                            e.preventDefault();
+                            return;
+                        default:
+                            return
                     }
-                })
+                }, false)
             };
 
         </script>
@@ -274,10 +323,8 @@
         <fieldset>
             <legend>Working Direction</legend>
             <div id="working_direction_buttons">
-                <input type="button" value="&larr;" name="working_direction" id="working_direction_left" />
-                <input type="button" value="&uarr;" name="working_direction" id="working_direction_up" />
-                <input type="button" value="&darr;" name="working_direction" id="working_direction_down" />
-                <input type="button" value="&rarr;" name="working_direction" id="working_direction_right" />
+               <label>Left <input id="working_left_right" type="range" min="0" max="1" /> Right</label>
+               <label>Up <input id="working_up_down" type="range" min="0" max="1" /> Down </label>
             </div>
 
         </fieldset>
