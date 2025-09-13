@@ -16,6 +16,16 @@
                 align-items:center;
             }
 
+            @keyframes selected {
+                0% { opacity: 1; }
+                50% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+
+            .selected {
+                animation: selected 1s infinite;
+            }
+
             .selected::before {
             content: "";
             position: absolute;
