@@ -11,6 +11,7 @@
         <script type="text/javascript" src="./color_list.js"></script>
         <script type="text/javascript" src="./image_input.js"></script>
         <script type="text/javascript" src="./load_palette.js"></script>
+            <script type="text/javascript" src="./export.js"></script>
         <script>
             /////////////////
             // Constants
@@ -22,6 +23,7 @@
             let COLOR_MATCH;
             let COLOR_PALETTE_LIST;
             let COLOR_OVERRIDE = new Map();
+            let COLOR_GRID = new Map();
 
             ////////////////////
             // Variables
@@ -143,7 +145,7 @@
                         grid_to_color = grid_override;
                     }
 
-                    do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
+                    COLOR_GRID = do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
                 }
 
                 document.getElementById('scale_button').addEventListener('click', onclick, false)
@@ -261,6 +263,11 @@
             <fieldset>
                 <legend>Sprite Input</legend>
                 <input type='file' name='img' size='65' id='uploadsprite' />
+            </fieldset>
+
+            <fieldset>
+                <legend>Export</legend>
+                <input type='button' id="JSON_EXPORT" value="JSON" />
             </fieldset>
         </div>
 
