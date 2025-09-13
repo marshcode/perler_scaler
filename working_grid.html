@@ -208,8 +208,8 @@
                 var up_down = document.getElementById('working_up_down').value
                 var obj = new Object();
 
-                obj.x = left_right == 1 ? 1 : -1
-                obj.y = up_down == 1 ? 1 : -1
+                obj.x = Number(left_right);
+                obj.y = Number(up_down);
                 return obj;
             }
 
@@ -238,7 +238,7 @@
 
                 const delta = get_direction_delta()
 
-                var next_cell = get_next_cell(SELECTED_CELL, delta.x, 0);
+                var next_cell = get_next_cell(SELECTED_CELL, delta.x, delta.y);
 
                 SELECTED_CELL.classList.add('disabled');
                 set_selected(next_cell);
@@ -323,8 +323,8 @@
         <fieldset>
             <legend>Working Direction</legend>
             <div id="working_direction_buttons">
-               <label>Left <input id="working_left_right" type="range" min="0" max="1" /> Right</label>
-               <label>Up <input id="working_up_down" type="range" min="0" max="1" /> Down </label>
+               <label>Left <input id="working_left_right" value="1" type="range" min="-1" max="1" step="1" /> Right</label>
+               <label>Up <input id="working_up_down" value="0" type="range" min="-1" max="1" step="1" /> Down </label>
             </div>
 
         </fieldset>
