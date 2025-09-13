@@ -32,7 +32,7 @@
                         generate_scale_coordinates(grid_x, grid_y, scale).forEach(function(scale_coord){
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], new_color, scale_context);
                             draw_rect(scale_coord['scale_x'], scale_coord['scale_y'], color, original_context);
-                            color_grid[[scale_coord['scale_x'], scale_coord['scale_y']]] = color
+                            color_grid.set([scale_coord['scale_x'], scale_coord['scale_y']], color);
 
                             const style = is_light(new_color[0], new_color[1], new_color[2]) ? "white" : "black";
                             draw_styled_text(scale_coord['scale_x'], scale_coord['scale_y'], ""+color_index,  style, debug_context);
