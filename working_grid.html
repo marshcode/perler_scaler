@@ -6,6 +6,7 @@
         <style type="text/css">
             #working_grid{
                 position: relative;
+                cursor: pointer;
             }
 
             .cell{
@@ -13,6 +14,17 @@
                 display:flex;
                 justify-content:center;
                 align-items:center;
+            }
+
+            .selected::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 0, 85, 0.445); /* Pink tint with 44.5% opacity */
+            z-index: 1;
             }
 
             .side_by_side {
@@ -43,6 +55,11 @@
             .disabled{
                 opacity: 10%;
             }
+
+            .working_target{
+                border: solid 3px hotpink;
+            }
+
         </style>
 
         <script>
@@ -164,6 +181,27 @@
                 }
             }
 
+
+
+            var set_selected = function(element){
+
+                document.querySelectorAll('[data-is-selected="true"').forEach(function(element){
+                    element.setAttribute('data-is-selected', 'false');
+                    element.classList.remove("selected");
+                });
+                
+                 element.setAttribute('data-is-selected', 'true');
+                 element.classList.add("selected");
+
+            }
+
+            var set_working_direction = function(element){
+                document.getElementsByName('working_direction').forEach(function(e){
+                    e.classList.remove("working_target")
+                });
+                element.classList.add("working_target");
+            }
+
             window.onload = function(){
 
                 WORKING_GRID = document.getElementById("working_grid");
@@ -188,21 +226,25 @@
                     var palette_id = e.target.getAttribute('data-palette-id')
                     var cells = document.querySelectorAll(`[data-palette-idx="${palette_id}"`);
 
-                    
-
                     cells.forEach(function(cell){
 
                         var is_disabled = cell.getAttribute('data-is-disabled') === 'true'
-
-                        if(is_disabled){
-                            cell.classList.remove('disabled');
-                        } else {
-                            cell.classList.add('disabled');
-                        }
+                        cell.classList.toggle('disabled');
                         cell.setAttribute('data-is-disabled', is_disabled ? 'false' : 'true');
                     })
 
-                }, false)
+                }, false);
+
+                
+                WORKING_GRID.addEventListener('dblclick', function(e){
+                    set_selected(e.target);
+                })
+
+                document.getElementById('working_direction_buttons').addEventListener('click', function(e){
+                    if(e.target.nodeName == "INPUT"){
+                        set_working_direction(e.target);    
+                    }
+                })
             };
 
         </script>
@@ -228,6 +270,16 @@
             <select id="palette_select">
                 <option disabled selected>Choose an option</option>
             </select>
+        </fieldset>
+        <fieldset>
+            <legend>Working Direction</legend>
+            <div id="working_direction_buttons">
+                <input type="button" value="&larr;" name="working_direction" id="working_direction_left" />
+                <input type="button" value="&uarr;" name="working_direction" id="working_direction_up" />
+                <input type="button" value="&darr;" name="working_direction" id="working_direction_down" />
+                <input type="button" value="&rarr;" name="working_direction" id="working_direction_right" />
+            </div>
+
         </fieldset>
     </div>
 
