@@ -26,12 +26,18 @@
                 align-items:center;
             }
 
+            #palette_draw{
+                margin-left:10px;
+            }
+
             #palette_draw div{
 
                 width: 1em;
                 display:flex;
                 justify-content:center;
                 align-items:center;
+                border:solid thin black;
+                cursor: pointer;
             }
 
             .disabled{
@@ -79,9 +85,12 @@
 
 
 
-
-
                 WORKING_GRID.append(cell);
+
+                var rekt = WORKING_GRID.getBoundingClientRect();
+                new_width = Math.max(rekt.width, (x+1) * grid_width);
+                WORKING_GRID.style.width = `${new_width}px`
+                cell.setAttribute('data-palette-idx', label);
 
             }
 
@@ -144,6 +153,8 @@
                     container = document.createElement('span');
                     var color = PALETTE[palette][palette_id];
                     var cell = create_cell(palette_id, color);
+                    cell.setAttribute('data-palette-id', palette_id)
+
                     var label = palette_labels[palette_id]
                     container.append(cell);
                     if(label){
@@ -172,6 +183,26 @@
                     draw_palette(PALETTE_SELECT.value);
                 })
 
+
+                PALETTE_DRAW.addEventListener('click', function(e){
+                    var palette_id = e.target.getAttribute('data-palette-id')
+                    var cells = document.querySelectorAll(`[data-palette-idx="${palette_id}"`);
+
+                    
+
+                    cells.forEach(function(cell){
+
+                        var is_disabled = cell.getAttribute('data-is-disabled') === 'true'
+
+                        if(is_disabled){
+                            cell.classList.remove('disabled');
+                        } else {
+                            cell.classList.add('disabled');
+                        }
+                        cell.setAttribute('data-is-disabled', is_disabled ? 'false' : 'true');
+                    })
+
+                }, false)
             };
 
         </script>
@@ -197,13 +228,14 @@
             <select id="palette_select">
                 <option disabled selected>Choose an option</option>
             </select>
-            <div id="palette_draw"></div>
         </fieldset>
     </div>
 
-    <div id="working_grid">
-
+    <div class="side_by_side">
+        <div id="working_grid"></div>
+        <div id="palette_draw"></div>
     </div>
+
 
 
     </body>
