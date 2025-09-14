@@ -1,389 +1,406 @@
 <html>
 
-    <head>
-        <title>Pokemon Pearler Scaler</title>
-        <link rel="stylesheet" href="./style.css">
+<head>
+    <title>Pokemon Pearler Scaler</title>
+    <link rel="stylesheet" href="./style.css">
 
-        <script type="text/javascript" src="./lib/color_convert.js"></script>
-        <script type="text/javascript" src="./canvas_util.js"></script>
-        <script type="text/javascript" src="./scaling_logic.js"></script>
-        <script type="text/javascript" src="./color_legend.js"></script>
-        <script type="text/javascript" src="./color_list.js"></script>
-        <script type="text/javascript" src="./image_input.js"></script>
-        <script type="text/javascript" src="./load_palette.js"></script>
-            <script type="text/javascript" src="./export.js"></script>
-        <script>
-            /////////////////
-            // Constants
-            /////////////////
-            const GRID_SIZE = 22;
-            const GRID_SIZE_HALF = 11;
-            let COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
-            let COLOR_IGNORE_LIST;
-            let COLOR_MATCH;
-            let COLOR_PALETTE_LIST;
-            let COLOR_OVERRIDE = new Map();
-            let COLOR_GRID = new Map();
+    <script type="text/javascript" src="./lib/color_convert.js"></script>
+    <script type="text/javascript" src="./canvas_util.js"></script>
+    <script type="text/javascript" src="./scaling_logic.js"></script>
+    <script type="text/javascript" src="./color_legend.js"></script>
+    <script type="text/javascript" src="./color_list.js"></script>
+    <script type="text/javascript" src="./image_input.js"></script>
+    <script type="text/javascript" src="./load_palette.js"></script>
+    <script type="text/javascript" src="./export.js"></script>
+    <script>
+        /////////////////
+        // Constants
+        /////////////////
+        const GRID_SIZE = 22;
+        const GRID_SIZE_HALF = 11;
+        let COLOR_LEGEND = new ColorLegend(document.getElementById('color_match_ignore'));
+        let COLOR_IGNORE_LIST;
+        let COLOR_MATCH;
+        let COLOR_PALETTE_LIST;
+        let COLOR_OVERRIDE = new Map();
+        let COLOR_GRID = new Map();
+        let FILE_NAME = 'pattern';
 
-            ////////////////////
-            // Variables
-            ///////////////////
-            var backCanvas = document.createElement('canvas');
+        ////////////////////
+        // Variables
+        ///////////////////
+        var backCanvas = document.createElement('canvas');
 
-            /////////////////////////
-            //DOM manipulation
-            /////////////////////////
-            window.onload = function() {
-                document.getElementById("uploadpattern").addEventListener("change", drawpattern, false);
-                document.getElementById("uploadsprite").addEventListener("change", drawsprite, false);
+        /////////////////////////
+        //DOM manipulation
+        /////////////////////////
+        window.onload = function () {
+            document.getElementById("uploadpattern").addEventListener("change", drawpattern, false);
+            document.getElementById("uploadsprite").addEventListener("change", function(e){
+                FILE_NAME = drawsprite(e).split('.')[0]
+            }, false);
 
-                document.getElementById('legend_enabled').addEventListener('change', function(e){
-                    document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
-                }, false);
+            document.getElementById('legend_enabled').addEventListener('change', function (e) {
+                document.getElementById('canvas_scale_debug').hidden = !e.target.checked;
+            }, false);
 
-                document.getElementById('color_match_ignore').addEventListener('change', add_color_ignore, false);
-                document.getElementById('color_match_algo').addEventListener('change', color_match_swap)
-                document.getElementById('color_override_action').addEventListener('click', color_override_action);
+            document.getElementById('color_match_ignore').addEventListener('change', add_color_ignore, false);
+            document.getElementById('color_match_algo').addEventListener('change', color_match_swap)
+            document.getElementById('color_override_action').addEventListener('click', color_override_action);
 
-                document.getElementById('show_original_overlay').addEventListener('change', function(e){
-                    const original_overlay = document.getElementById('canvas_scale_original')
-                    original_overlay.style.display = e.target.checked ? 'block' : 'none';
-                })
+            document.getElementById('show_original_overlay').addEventListener('change', function (e) {
+                const original_overlay = document.getElementById('canvas_scale_original')
+                original_overlay.style.display = e.target.checked ? 'block' : 'none';
+            })
 
-                COLOR_IGNORE_LIST = new ColorList(document.getElementById('color_match_ignore_list'));
-                
-                load_palette('palettes/palette.json', function(palette){
-                    COLOR_PALETTE_LIST = new ColorList(document.getElementById('perlet_palette_list'))
-                    for(color_name in palette){
-                        let [r, g, b] = palette[color_name];
-                        COLOR_PALETTE_LIST.add_color(r, g, b, color_name);
-                    }
-                })
-            
-            };
+            COLOR_IGNORE_LIST = new ColorList(document.getElementById('color_match_ignore_list'));
+
+            load_palette('palettes/palette.json', function (palette) {
+                COLOR_PALETTE_LIST = new ColorList(document.getElementById('perlet_palette_list'))
+                for (color_name in palette) {
+                    let [r, g, b] = palette[color_name];
+                    COLOR_PALETTE_LIST.add_color(r, g, b, color_name);
+                }
+            })
+
+            document.getElementById("JSON_EXPORT").addEventListener("click", function () {
+                var json_data = json_export(COLOR_LEGEND, [COLOR_GRID])
+                var json_string = JSON.stringify(json_data);
+                const blob = new Blob([json_string], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = FILE_NAME + ".json";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        };
 
 
-            const color_override_action = function(){
-                const override_input = document.getElementById('color_override_input').value;
-                const override_output = document.getElementById('color_override_output').value;
-                const override_table_body = document.querySelector('#color_override_table tbody');
+        const color_override_action = function () {
+            const override_input = document.getElementById('color_override_input').value;
+            const override_output = document.getElementById('color_override_output').value;
+            const override_table_body = document.querySelector('#color_override_table tbody');
 
-                const [r_in, g_in, b_in] = get_rgb_from_hex(override_input);
-                const [r_out, g_out, b_out] = get_rgb_from_hex(override_output);
+            const [r_in, g_in, b_in] = get_rgb_from_hex(override_input);
+            const [r_out, g_out, b_out] = get_rgb_from_hex(override_output);
 
-                table_row = document.createElement('tr');
-                color_input = document.createElement('td');
-                color_output = document.createElement('td');
-                table_row.append(color_input);
-                table_row.append(color_output);
+            table_row = document.createElement('tr');
+            color_input = document.createElement('td');
+            color_output = document.createElement('td');
+            table_row.append(color_input);
+            table_row.append(color_output);
 
 
-                color_input.style.backgroundColor = `rgb(${r_in}, ${g_in}, ${b_in})`;
-                color_output.style.backgroundColor = `rgb(${r_out}, ${g_out}, ${b_out})`;
-                override_table_body.appendChild(table_row);
-                COLOR_OVERRIDE.set(JSON.stringify([r_in, g_in, b_in]), [r_out, g_out, b_out, 255])
+            color_input.style.backgroundColor = `rgb(${r_in}, ${g_in}, ${b_in})`;
+            color_output.style.backgroundColor = `rgb(${r_out}, ${g_out}, ${b_out})`;
+            override_table_body.appendChild(table_row);
+            COLOR_OVERRIDE.set(JSON.stringify([r_in, g_in, b_in]), [r_out, g_out, b_out, 255])
 
-            }
+        }
 
-            function color_match_swap(e){
-                for(let panel of document.getElementsByClassName('color_match_panel')){
-                    if(panel.id === `color_match_${e.target.value}`){
-                        panel.style.display = "block";
-                    } else {
-                        panel.style.display = "none";
-                    }   
+        function color_match_swap(e) {
+            for (let panel of document.getElementsByClassName('color_match_panel')) {
+                if (panel.id === `color_match_${e.target.value}`) {
+                    panel.style.display = "block";
+                } else {
+                    panel.style.display = "none";
                 }
             }
+        }
 
-            function get_rgb_from_hex(hex){
-                const r = parseInt(hex.substr(1, 2), 16);
-                const g = parseInt(hex.substr(3, 2), 16);
-                const b = parseInt(hex.substr(5, 2), 16);
-                return [r, g, b]
-            }
+        function get_rgb_from_hex(hex) {
+            const r = parseInt(hex.substr(1, 2), 16);
+            const g = parseInt(hex.substr(3, 2), 16);
+            const b = parseInt(hex.substr(5, 2), 16);
+            return [r, g, b]
+        }
 
-            function add_color_ignore(){
-                const color_ignore = document.getElementById('color_match_ignore').value;
-                const [r,g,b] = get_rgb_from_hex(color_ignore);
-                COLOR_LEGEND.add_color_ignore(r, g, b);
-                COLOR_IGNORE_LIST.add_color(r, g, b, "");
-            }
+        function add_color_ignore() {
+            const color_ignore = document.getElementById('color_match_ignore').value;
+            const [r, g, b] = get_rgb_from_hex(color_ignore);
+            COLOR_LEGEND.add_color_ignore(r, g, b);
+            COLOR_IGNORE_LIST.add_color(r, g, b, "");
+        }
 
-            function set_scale_onclick(grid_to_color){
-                let onclick = function(){
-                    let scale = document.getElementById('scale_input').value
-                    let grid_w = document.getElementById('grid_w_input').value
-                    let grid_h = document.getElementById('grid_h_input').value
+        function set_scale_onclick(grid_to_color) {
+            let onclick = function () {
+                let scale = document.getElementById('scale_input').value
+                let grid_w = document.getElementById('grid_w_input').value
+                let grid_h = document.getElementById('grid_h_input').value
 
-                    let color_conversion_algo = document.getElementById('color_conversion_algo').value
-                    let color_match_algo = document.getElementById('color_match_algo').value
-                    let color_match = false;
-                    if(color_match_algo == 'threshold'){
-                        let color_match_threshold = Number(document.getElementById('color_match').value)
-                        if (color_match_threshold > 0){
-                            color_match = new ColorMatchThreshold(Number(color_match_threshold), color_conversion_algo);
+                let color_conversion_algo = document.getElementById('color_conversion_algo').value
+                let color_match_algo = document.getElementById('color_match_algo').value
+                let color_match = false;
+                if (color_match_algo == 'threshold') {
+                    let color_match_threshold = Number(document.getElementById('color_match').value)
+                    if (color_match_threshold > 0) {
+                        color_match = new ColorMatchThreshold(Number(color_match_threshold), color_conversion_algo);
+                    }
+                } else if (color_match_algo == 'palette') {
+                    color_match = new ColorMatchPalette(COLOR_PALETTE_LIST.colors, color_conversion_algo);
+                }
+
+                const color_override = false;
+                if (COLOR_OVERRIDE.size > 0) {
+                    const original_grid_to_color = grid_to_color;
+                    const grid_override = function (x, y) {
+
+                        const color = original_grid_to_color(x, y);
+                        const color_key = JSON.stringify([color[0], color[1], color[2]]);
+                        const overide_color = COLOR_OVERRIDE.get(color_key)
+                        console.log(color, color_key, overide_color, COLOR_OVERRIDE)
+                        if (overide_color) {
+                            return overide_color;
                         }
-                    } else if(color_match_algo == 'palette'){
-                        color_match = new ColorMatchPalette(COLOR_PALETTE_LIST.colors, color_conversion_algo);
+
+                        return color;
                     }
-
-                    const color_override = false;
-                    if(COLOR_OVERRIDE.size > 0){
-                        const original_grid_to_color = grid_to_color;
-                        const grid_override = function(x, y){
-
-                            const color = original_grid_to_color(x, y);
-                            const color_key = JSON.stringify([color[0],color[1],color[2]]);
-                            const overide_color = COLOR_OVERRIDE.get(color_key)
-                            console.log(color, color_key, overide_color, COLOR_OVERRIDE)
-                            if(overide_color){
-                                return overide_color;
-                            }
-                            
-                            return color;
-                        }
-                        grid_to_color = grid_override;
-                    }
-
-                    COLOR_GRID = do_scale(grid_w, grid_h, scale, grid_to_color, color_match); 
+                    grid_to_color = grid_override;
                 }
 
-                document.getElementById('scale_button').addEventListener('click', onclick, false)
+                COLOR_GRID = do_scale(grid_w, grid_h, scale, grid_to_color, color_match);
             }
 
-            function set_scale_options(grid_w, grid_h){
-                document.getElementById('grid_w_input').value = grid_w;
-                document.getElementById('grid_h_input').value = grid_h;
+            document.getElementById('scale_button').addEventListener('click', onclick, false)
+        }
+
+        function set_scale_options(grid_w, grid_h) {
+            document.getElementById('grid_w_input').value = grid_w;
+            document.getElementById('grid_h_input').value = grid_h;
+        }
+
+        let resize_canvas = function (canvas_id, width, height) {
+            canvas = document.getElementById(canvas_id);
+            canvas_debug = document.getElementById(canvas_id + "_debug");
+
+            canvas.height = height;
+            canvas.width = width;
+            if (canvas_debug) {
+                canvas_debug.height = height;
+                canvas_debug.width = width;
             }
+        }
+        function legend_render() {
+            const legend_container = document.getElementById("legend_container");
 
-            let resize_canvas = function(canvas_id, width, height){
-                canvas = document.getElementById(canvas_id);
-                canvas_debug = document.getElementById(canvas_id+"_debug");
+            const newLegend = [];
+            COLOR_LEGEND.get_color_legend().forEach((value, key) => {
+                const color_line = document.createElement("div");
+                const color_swatch = document.createElement("span");
+                const color_index = document.createElement("span");
+                const color_count = document.createElement("span");
 
-                canvas.height = height;
-                canvas.width = width;
-                if (canvas_debug){
-                    canvas_debug.height = height;
-                    canvas_debug.width = width;
-                }
+                const index = Number(COLOR_LEGEND.get_color_index(key))
+                const label = COLOR_LEGEND.get_color_label(key) || ''
+
+                color_line.append(color_swatch);
+                color_line.append(color_count);
+                color_swatch.append(color_index);
+                newLegend.push(color_line);
+
+                color_count.innerHTML = `${label}: ${value}`;
+
+                const [r, g, b, a] = key.split(",").map(Number);
+                color_swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
+                color_swatch.setAttribute('class', 'color_swatch');
+                color_swatch.setAttribute('title', `rgb(${r},${g},${b})`)
+
+
+
+                color_index.classList.add('color_index');
+                color_index.classList.add(is_light(r, g, b) ? 'light' : 'dark');
+
+                color_index.innerHTML = "" + index
+
+            });
+
+            legend_container.replaceChildren(...newLegend);
+
+        }
+
+
+        /////////////////////////
+        //Source: Image Logic
+        /////////////////////////
+
+        var get_color_at_grid_point = function (grid_x, grid_y, canvas_context) {
+
+            canvas_coords = convert_coords(grid_x, grid_y);
+            const pixelData = canvas_context.getImageData(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 1, 1).data;
+            return pixelData;
+        }
+
+
+        /////////////////////////
+        //Canvas Util
+        /////////////////////////
+        var convert_coords = function (grid_x, grid_y) {
+            return {
+                'canvas_x': (grid_x * GRID_SIZE) + GRID_SIZE_HALF,
+                'canvas_y': (grid_y * GRID_SIZE) + GRID_SIZE_HALF
             }
-            function legend_render(){
-                const legend_container = document.getElementById("legend_container");
+        }
 
-                const newLegend = [];
-                COLOR_LEGEND.get_color_legend().forEach((value, key) => {
-                    const color_line = document.createElement("div");
-                    const color_swatch = document.createElement("span");
-                    const color_index = document.createElement("span");
-                    const color_count = document.createElement("span");
-                    
-                    const index = Number(COLOR_LEGEND.get_color_index(key))
-                    const label = COLOR_LEGEND.get_color_label(key) || ''
-
-                    color_line.append(color_swatch);
-                    color_line.append(color_count);
-                    color_swatch.append(color_index);
-                    newLegend.push(color_line);
-
-                    color_count.innerHTML = `${label}: ${value}`;
-
-                    const [r,g,b,a] = key.split(",").map(Number);
-                    color_swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
-                    color_swatch.setAttribute('class', 'color_swatch');
-                    color_swatch.setAttribute('title', `rgb(${r},${g},${b})`)
-
-                    
-                    
-                    color_index.classList.add('color_index');
-                    color_index.classList.add( is_light(r,g,b) ? 'light' : 'dark' );
-                    
-                    color_index.innerHTML = "" + index
-
-                });
-
-                legend_container.replaceChildren(...newLegend);
-
+        var grid_coords_from_canvas = function (canvas_x, canvas_y) {
+            return {
+                'grid_x': Math.floor(canvas_x / GRID_SIZE),
+                'grid_y': Math.floor(canvas_y / GRID_SIZE),
             }
+        }
 
+        ////////////////////////////////
+        //Canvas Click Interactions
+        ////////////////////////////////
+        let canvas_click = function (ev) {
+            var rect = ev.target.getBoundingClientRect();
+            var x = ev.clientX - rect.left; //x position within the element.
+            var y = ev.clientY - rect.top;  //y position within the element.
+            var grid = grid_coords_from_canvas(x, y);
 
-            /////////////////////////
-            //Source: Image Logic
-            /////////////////////////
+            canvas = document.getElementById('canvas_debug');
+            clear_canvas(canvas);
+            draw_rect_border(grid.grid_x, grid.grid_y, canvas.getContext('2d'));
+        }
 
-            var get_color_at_grid_point = function(grid_x, grid_y, canvas_context){
+    </script>
+</head>
 
-                canvas_coords = convert_coords(grid_x, grid_y);
-                const pixelData = canvas_context.getImageData(canvas_coords['canvas_x'], canvas_coords['canvas_y'], 1, 1).data;
-                return pixelData;
-            }
+<body>
 
+    <div class="side_by_side">
+        <fieldset>
+            <legend>Pattern Input</legend>
+            <input type='file' name='img' size='65' id='uploadpattern' />
+        </fieldset>
 
-            /////////////////////////
-            //Canvas Util
-            /////////////////////////
-            var convert_coords = function(grid_x, grid_y){
-                return {
-                    'canvas_x': (grid_x * GRID_SIZE) + GRID_SIZE_HALF,
-                    'canvas_y': (grid_y * GRID_SIZE) + GRID_SIZE_HALF
-                }
-            }
+        <fieldset>
+            <legend>Sprite Input</legend>
+            <input type='file' name='img' size='65' id='uploadsprite' />
+        </fieldset>
 
-            var grid_coords_from_canvas = function(canvas_x, canvas_y){
-                return {
-                    'grid_x': Math.floor(canvas_x / GRID_SIZE),
-                    'grid_y': Math.floor(canvas_y / GRID_SIZE),
-                }
-            }
- 
-            ////////////////////////////////
-            //Canvas Click Interactions
-            ////////////////////////////////
-            let canvas_click = function(ev){
-                var rect = ev.target.getBoundingClientRect();
-                var x = ev.clientX - rect.left; //x position within the element.
-                var y = ev.clientY - rect.top;  //y position within the element.
-                var grid = grid_coords_from_canvas(x,y);
+        <fieldset>
+            <legend>Export</legend>
+            <input type='button' id="JSON_EXPORT" value="JSON" />
+        </fieldset>
+    </div>
 
-                canvas = document.getElementById('canvas_debug');
-                clear_canvas(canvas);
-                draw_rect_border(grid.grid_x, grid.grid_y, canvas.getContext('2d'));
-            }
+    <div class="side_by_side">
+        <fieldset>
+            <legend>Scaling Options</legend>
+            <div class="form-row">
+                <label for="scale_input">Scale:</label>
+                <input type="number" id='scale_input' name="scale" min="1" value="1" />
+            </div>
+            <div class="form-row">
+                <label for="grid_w_input">Grid&nbsp;Width:</label>
+                <input type="number" id='grid_w_input' name="grid_w" min="1" />
+            </div>
+            <div class="form-row">
+                <label for="grid_h_input">Grid&nbsp;Height:</label>
+                <input type="number" id='grid_h_input' name="grid_h" min="1" />
+            </div>
 
-        </script>
-    </head>
+            <input type="button" id="scale_button" value="Scale" />
+        </fieldset>
+        <fieldset>
+            <legend>
+                Color Match
+            </legend>
+            <div class="form-row">
+                <label for="color_match_ignore">Match&nbsp;Ignore:</label>
+                <input type="color" id="color_match_ignore">
+            </div>
 
-    <body>
+            <div id="color_match_ignore_list" class="color_list row"></div>
 
-        <div class="side_by_side">
-            <fieldset>
-                <legend>Pattern Input</legend>
-                <input type='file' name='img' size='65' id='uploadpattern' />
-            </fieldset>
+            <div class="form-row">
+                <label for="color_conversion_algo">Color&nbsp;Comparsion:</label>
+                <select id="color_conversion_algo">
+                    <option value="rgb_distance">RGB Distance</option>
+                    <option value="RGB_DISTANCE_WEIGHTED">RGB Distance Weighted</option>
+                    <option value="CIE76">CIE76 (LAB + DELTAE)</option>
+                </select>
+            </div>
 
-            <fieldset>
-                <legend>Sprite Input</legend>
-                <input type='file' name='img' size='65' id='uploadsprite' />
-            </fieldset>
-
-            <fieldset>
-                <legend>Export</legend>
-                <input type='button' id="JSON_EXPORT" value="JSON" />
-            </fieldset>
-        </div>
-
-        <div class="side_by_side">
-            <fieldset>
-                <legend>Scaling Options</legend>
-                <div class="form-row">
-                    <label for="scale_input">Scale:</label>
-                    <input type="number" id = 'scale_input' name="scale" min="1" value="1"/> 
-                </div>
-                <div class="form-row">
-                    <label for="grid_w_input">Grid&nbsp;Width:</label>
-                    <input type="number" id='grid_w_input' name="grid_w" min="1"/> 
-                </div>
-                <div class="form-row">
-                    <label for="grid_h_input">Grid&nbsp;Height:</label>
-                    <input type="number" id='grid_h_input' name="grid_h" min="1" /> 
-                </div>
-                
-                <input type="button" id="scale_button" value="Scale" /> 
-            </fieldset>
             <fieldset>
                 <legend>
-                    Color Match 
-                </legend>
-                <div class="form-row">
-                    <label for="color_match_ignore">Match&nbsp;Ignore:</label> 
-                    <input type="color" id="color_match_ignore">          
-                </div>
-                
-                <div id="color_match_ignore_list" class="color_list row"></div>
-
-                <div class="form-row">
-                    <label for="color_conversion_algo">Color&nbsp;Comparsion:</label>
-                    <select id="color_conversion_algo">
-                        <option value="rgb_distance">RGB Distance</option>
-                        <option value="RGB_DISTANCE_WEIGHTED">RGB Distance Weighted</option>
-                        <option value="CIE76">CIE76 (LAB + DELTAE)</option>
+                    Algorithm:
+                    <select id="color_match_algo">
+                        <option value="none" selected>None</option>
+                        <option value="threshold">Threshold</option>
+                        <option value="palette">Palette</option>
                     </select>
-                </div>
+                </legend>
 
-                <fieldset>
-                    <legend>
-                        Algorithm:
-                        <select id="color_match_algo">
-                            <option value="none" selected>None</option>
-                            <option value="threshold">Threshold</option>
-                            <option value="palette">Palette</option>
-                        </select>
-                    </legend>
-
-                    <div id="color_match_threshold" class="color_match_panel">
-                        Color Match:  0
-                        <div class="slider_container">
-                            <input type="range" id='color_match' name="color_match" 
-                            oninput="color_match_disp.value = color_match.value"
-                            class="slider"
-                            min="0" max="255" value="0" />
-                            <output class="slider_output" id="color_match_disp">0</output> 
-                        </div>
-                        255
-                        <br />
+                <div id="color_match_threshold" class="color_match_panel">
+                    Color Match: 0
+                    <div class="slider_container">
+                        <input type="range" id='color_match' name="color_match"
+                            oninput="color_match_disp.value = color_match.value" class="slider" min="0" max="255"
+                            value="0" />
+                        <output class="slider_output" id="color_match_disp">0</output>
                     </div>
-                    <div id="color_match_palette" class="color_match_panel">
-                        Perler Palette
-                        <div id="perlet_palette_list" class="color_list"></div>
-                    </div>
-                </fieldset>
+                    255
+                    <br />
+                </div>
+                <div id="color_match_palette" class="color_match_panel">
+                    Perler Palette
+                    <div id="perlet_palette_list" class="color_list"></div>
+                </div>
             </fieldset>
-            <fieldset>
-                <legend>Color Override</legend>
-                <div class="form-row">
-                    <label for="color_override_input">Input&nbsp;Color:</label> 
-                    <input type="color" id="color_override_input">          
-                </div>
-                <div class="form-row">
-                    <label for="color_override_output">Output&nbsp;Color:</label> 
-                    <input type="color" id="color_override_output">          
-                </div>
-                <input type="button" value="Add Override" id="color_override_action">
-                <table id="color_override_table">
-                    <thead>
-                        <tr>
-                            <th>Input Color</th><th>Output Color</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </fieldset>
-        </div>
+        </fieldset>
+        <fieldset>
+            <legend>Color Override</legend>
+            <div class="form-row">
+                <label for="color_override_input">Input&nbsp;Color:</label>
+                <input type="color" id="color_override_input">
+            </div>
+            <div class="form-row">
+                <label for="color_override_output">Output&nbsp;Color:</label>
+                <input type="color" id="color_override_output">
+            </div>
+            <input type="button" value="Add Override" id="color_override_action">
+            <table id="color_override_table">
+                <thead>
+                    <tr>
+                        <th>Input Color</th>
+                        <th>Output Color</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </fieldset>
+    </div>
 
-        <div class="side_by_side">
-            <fieldset>
-                <legend>Original</legend>
-                <div class="canvas_layers">
-                    <canvas id="canvas" width="500"></canvas>
-                    <canvas id="canvas_debug" class="canvas_layer"></canvas>
-                </div>
-            </fieldset> 
+    <div class="side_by_side">
+        <fieldset>
+            <legend>Original</legend>
+            <div class="canvas_layers">
+                <canvas id="canvas" width="500"></canvas>
+                <canvas id="canvas_debug" class="canvas_layer"></canvas>
+            </div>
+        </fieldset>
 
-            <fieldset>
-                <legend>Scale</legend>
-                <label>Original Overlay: <input type='checkbox' id="show_original_overlay"></label>
-                <div class="canvas_layers">
-                    <canvas id="canvas_scale" width="500"></canvas>
-                    <canvas id="canvas_scale_debug" class="canvas_layer"></canvas>
-                    <canvas id="canvas_scale_original" class="canvas_layer"></canvas>
-                </div>
-            </fieldset> 
-            <fieldset>
-                <legend><label>Color Legend<input id="legend_enabled" type="checkbox" checked></label></legend>
-                <div id="legend_container"></div>
-                
-            </fieldset>
-        </div>
+        <fieldset>
+            <legend>Scale</legend>
+            <label>Original Overlay: <input type='checkbox' id="show_original_overlay"></label>
+            <div class="canvas_layers">
+                <canvas id="canvas_scale" width="500"></canvas>
+                <canvas id="canvas_scale_debug" class="canvas_layer"></canvas>
+                <canvas id="canvas_scale_original" class="canvas_layer"></canvas>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend><label>Color Legend<input id="legend_enabled" type="checkbox" checked></label></legend>
+            <div id="legend_container"></div>
 
-    </body>
+        </fieldset>
+    </div>
+
+</body>
 
 </html>

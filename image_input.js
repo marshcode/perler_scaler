@@ -60,4 +60,5 @@
                     set_scale_options(canvas.width+1, canvas.height+1);
                     set_scale_onclick(image_grid_color);
                 }
+                return f.name
             }
