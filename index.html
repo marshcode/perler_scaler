@@ -12,6 +12,7 @@
     <script type="text/javascript" src="./image_input.js"></script>
     <script type="text/javascript" src="./load_palette.js"></script>
     <script type="text/javascript" src="./export.js"></script>
+    <script type="text/javascript" src="./subdivide.js"></script>
     <script>
         /////////////////
         // Constants
@@ -25,6 +26,7 @@
         let COLOR_OVERRIDE = new Map();
         let COLOR_GRID = new Map();
         let FILE_NAME = 'pattern';
+        let SUB_DI_GUIDE;
 
         ////////////////////
         // Variables
@@ -35,6 +37,10 @@
         //DOM manipulation
         /////////////////////////
         window.onload = function () {
+
+            let subdivide_enabled = document.getElementById('subdivide_enabled');
+            SUB_DI_GUIDE = new SubDiGuideController(document.getElementById('sub-di-guide'));
+            
             document.getElementById("uploadpattern").addEventListener("change", drawpattern, false);
             document.getElementById("uploadsprite").addEventListener("change", function(e){
                 FILE_NAME = drawsprite(e).split('.')[0]
@@ -77,6 +83,17 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             });
+
+            document.getElementById("sub-di-guide").addEventListener('mousemove', function(e){
+                if (!subdivide_enabled.checked){
+                    return
+                }
+                const bounds = event.currentTarget.getBoundingClientRect();
+                const x = event.clientX - bounds.left;
+                const y = event.clientY - bounds.top;
+                SUB_DI_GUIDE.set_guide(x, y, GRID_SIZE);
+            });
+
         };
 
 
@@ -293,7 +310,7 @@
             <legend>Scaling Options</legend>
             <div class="form-row">
                 <label for="scale_input">Scale:</label>
-                <input type="number" id='scale_input' name="scale" min="1" value="1" />
+                <input type="number" id='scale_input' name="scale" min="1" value="1"/>
             </div>
             <div class="form-row">
                 <label for="grid_w_input">Grid&nbsp;Width:</label>
@@ -305,6 +322,18 @@
             </div>
 
             <input type="button" id="scale_button" value="Scale" />
+        </fieldset>
+        <fieldset>
+            <legend>Subdivide</legend>
+                <div class="form-row">
+                    <label for="grid_h_input">H:</label>
+                    <input type="number" id='sub_h_input' name="grid_h" min="1" />
+                </div>
+                <div class="form-row">
+                    <label for="grid_h_input">W:</label>
+                    <input type="number" id='sub_h_input' name="grid_h" min="1" />
+                </div>
+                <label>Enabled: <input type="checkbox" id="subdivide_enabled" /></label>
         </fieldset>
         <fieldset>
             <legend>
@@ -392,6 +421,7 @@
                 <canvas id="canvas_scale" width="500"></canvas>
                 <canvas id="canvas_scale_debug" class="canvas_layer"></canvas>
                 <canvas id="canvas_scale_original" class="canvas_layer"></canvas>
+                <canvas id="sub-di-guide" class="canvas_layer"></canvas>
             </div>
         </fieldset>
         <fieldset>

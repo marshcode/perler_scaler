@@ -12,6 +12,9 @@
 
                 resize_canvas('canvas_scale', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE);
                 resize_canvas('canvas_scale_original', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE)
+                resize_canvas('sub-di-guide', (Number(grid_x_max)+1) * scale * GRID_SIZE, (Number(grid_y_max)+1) * scale * GRID_SIZE)
+
+
 
                 //draw number grid
                 for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
