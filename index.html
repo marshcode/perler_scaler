@@ -83,6 +83,30 @@
                 URL.revokeObjectURL(url);
             });
 
+            document.getElementById("PNG_EXPORT").addEventListener("click", function(){
+
+                var scale_canvas = document.getElementById('canvas_scale');
+                var scale_canvas_debug = document.getElementById('canvas_scale_debug');
+                var canvas_combined = document.createElement('canvas');
+
+                canvas_combined.width = scale_canvas.width;
+                canvas_combined.height = scale_canvas.height;
+                var to_canvas_context = canvas_combined.getContext('2d');
+                to_canvas_context.drawImage(scale_canvas, 0, 0);
+                to_canvas_context.drawImage(scale_canvas_debug, 0, 0);            
+
+
+                const dataURL = canvas_combined.toDataURL('image/png');
+
+                const a = document.createElement('a');
+                a.href = dataURL;
+                a.download = FILE_NAME + "-pattern.png";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(dataURL);
+            });
+
             document.getElementById("sub-di-guide").addEventListener('mousemove', function (e) {
                 if (!subdivide_enabled.checked) {
                     return
@@ -177,6 +201,7 @@
                 COLOR_GRID = do_scale(grid_w, grid_h, 1, grid_to_color, color_match);
             }
 
+            document.getElementById('redraw').addEventListener('click', onclick)
             return onclick
         }
 
@@ -287,6 +312,7 @@
         <fieldset>
             <legend>Export</legend>
             <input type='button' id="JSON_EXPORT" value="JSON" />
+            <input type='button' id="PNG_EXPORT" value="PNG" />
         </fieldset>
     </div>
 
@@ -384,6 +410,7 @@
 
         <fieldset>
             <legend>Scale</legend>
+            <input type="button" value="redraw" id="redraw" />
             <label>Original Overlay: <input type='checkbox' id="show_original_overlay"></label>
             <div class="canvas_layers">
                 <canvas id="canvas_scale" width="500"></canvas>
