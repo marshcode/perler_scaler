@@ -89,31 +89,7 @@
                 var scale_canvas_debug = document.getElementById('canvas_scale_debug');
                 var canvas_combined = document.createElement('canvas');
 
-                canvas_combined.width = scale_canvas.width + (GRID_SIZE * 20);
-                canvas_combined.height = scale_canvas.height;
-                var to_canvas_context = canvas_combined.getContext('2d');
-
-                to_canvas_context.fillStyle = document.getElementById("PNG_BACKGROUND").value
-                to_canvas_context.fillRect(0, 0, scale_canvas.width, scale_canvas.height)
-                to_canvas_context.fillStyle = "white"
-                to_canvas_context.fillRect(scale_canvas.width, 0, scale_canvas.width + (GRID_SIZE * 20), scale_canvas.height)
-
-                to_canvas_context.drawImage(scale_canvas, 0, 0);
-                to_canvas_context.drawImage(scale_canvas_debug, 0, 0);            
-
-                let grid_y_idx = 0;
-                COLOR_LEGEND.get_color_legend().forEach(function(_, key, _){
-                    const color_index = COLOR_LEGEND.get_color_index(key);
-                    const [r, g, b, a_] = COLOR_LEGEND.parse_key(key)
-
-                    var coords = grid_coords_from_canvas(scale_canvas.width, 0);
-                    grid_y_idx += 2;
-                    draw_rect(coords.grid_x, grid_y_idx, [r, g, b, a_], to_canvas_context)
-                    const style = is_light(r, g, b) ? "white" : "black";
-                    draw_styled_text(coords.grid_x, grid_y_idx, ""+color_index,  style, to_canvas_context);
-
-                });
-
+                png_export([scale_canvas, scale_canvas_debug], canvas_combined, COLOR_LEGEND);
 
                 const dataURL = canvas_combined.toDataURL('image/png');
 
