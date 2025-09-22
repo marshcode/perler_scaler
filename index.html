@@ -92,6 +92,10 @@
                 canvas_combined.width = scale_canvas.width;
                 canvas_combined.height = scale_canvas.height;
                 var to_canvas_context = canvas_combined.getContext('2d');
+
+                to_canvas_context.fillStyle = document.getElementById("PNG_BACKGROUND").value
+                to_canvas_context.fillRect(0, 0, scale_canvas.width, scale_canvas.height)
+
                 to_canvas_context.drawImage(scale_canvas, 0, 0);
                 to_canvas_context.drawImage(scale_canvas_debug, 0, 0);            
 
@@ -309,10 +313,14 @@
             <input type='file' name='img' size='65' id='uploadsprite' />
         </fieldset>
 
-        <fieldset>
+        <fieldset style="display:flex; flex-direction: column;">
             <legend>Export</legend>
-            <input type='button' id="JSON_EXPORT" value="JSON" />
-            <input type='button' id="PNG_EXPORT" value="PNG" />
+            <input type='button' id="JSON_EXPORT" value="JSON"/>
+            <div class="side_by_side" style="margin-top:10px;">
+                <input type='button' id="PNG_EXPORT" value="PNG" />
+                <input type="color" id="PNG_BACKGROUND" value="#FF46A2" title="PNG Background" />
+            </div>
+            
         </fieldset>
     </div>
 
