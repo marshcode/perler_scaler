@@ -5,6 +5,13 @@
                 scale_context.fillRect(canvas_coords['canvas_x'], canvas_coords['canvas_y'], GRID_SIZE, GRID_SIZE)
             }
 
+           var stroke_rect = function(grid_x, grid_y, rgb_array, scale_context){
+
+                canvas_coords = convert_coords(grid_x, grid_y);
+                scale_context.strokeStyle = `rgba(${rgb_array[0]}, ${rgb_array[1]}, ${rgb_array[2]}, ${rgb_array[3]})`;
+                scale_context.strokeRect(canvas_coords['canvas_x'], canvas_coords['canvas_y'], GRID_SIZE, GRID_SIZE)
+            }
+
             var draw_rect_border = function(grid_x, grid_y, context){
                 canvas_coords = convert_coords(grid_x, grid_y);
                 context.save();

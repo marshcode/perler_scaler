@@ -57,16 +57,20 @@ var png_export = function(canvas_list, canvas_target, color_legend){
     })    
 
     let grid_y_idx = 0;
-    COLOR_LEGEND.get_color_legend().forEach(function(_, key, _){
-        const color_index = COLOR_LEGEND.get_color_index(key);
-        const [r, g, b, a_] = COLOR_LEGEND.parse_key(key)
+    color_legend.get_color_legend().forEach(function(count, key, _){
+        const color_index = color_legend.get_color_index(key);
+        const [r, g, b, a_] = color_legend.parse_key(key)
 
         var coords = grid_coords_from_canvas(source_width, 0);
         grid_y_idx += 2;
+
         draw_rect(coords.grid_x, grid_y_idx, [r, g, b, 255], to_canvas_context)
+        stroke_rect(coords.grid_x, grid_y_idx, [0, 0, 0, 255], to_canvas_context)
+
         const style = is_light(r, g, b) ? "white" : "black";
         draw_styled_text(coords.grid_x, grid_y_idx, ""+color_index,  style, to_canvas_context);
-
+        const legend = color_legend.get_color_label(key)
+        draw_styled_text(coords.grid_x + 1, grid_y_idx, count, "black", to_canvas_context)
     });
 
 }
