@@ -24,15 +24,25 @@
                 context.restore();              
             }
 
-            var draw_text = function(grid_x, grid_y, text, scale_context){
+            var draw_text = function(grid_x, grid_y, text, scale_context, offset){
                 canvas_coords = convert_coords(grid_x, grid_y);
-                scale_context.fillText(text, canvas_coords['canvas_x']+7, canvas_coords['canvas_y']+11)
+
+                offset = offset || {};
+                let x_offset = 7 + (offset['x'] || 0);
+                let y_offset = 11 + (offset['y'] || 0);
+
+                scale_context.fillText(text, canvas_coords['canvas_x']+x_offset, canvas_coords['canvas_y']+y_offset)
             }
 
-            var draw_styled_text = function(grid_x, grid_y, text, style, scale_context){
+            var draw_styled_text = function(grid_x, grid_y, text, style, scale_context, font, offset){
                 scale_context.save();
+
+                if (font){
+                    scale_context.font = font
+                }
+
                 scale_context.fillStyle = style;
-                draw_text(grid_x, grid_y, text, scale_context);
+                draw_text(grid_x, grid_y, text, scale_context, offset);
                 scale_context.restore()
             }
             

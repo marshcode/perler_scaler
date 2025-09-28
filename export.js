@@ -68,9 +68,9 @@ var png_export = function(canvas_list, canvas_target, color_legend){
         stroke_rect(coords.grid_x, grid_y_idx, [0, 0, 0, 255], to_canvas_context)
 
         const style = is_light(r, g, b) ? "white" : "black";
-        draw_styled_text(coords.grid_x, grid_y_idx, ""+color_index,  style, to_canvas_context);
+        draw_styled_text(coords.grid_x, grid_y_idx, ""+color_index,  style, to_canvas_context, "20px serif", {'x':-4, 'y':5});
         const legend = color_legend.get_color_label(key)
-        draw_styled_text(coords.grid_x + 1, grid_y_idx, count, "black", to_canvas_context)
+        draw_styled_text(coords.grid_x + 1, grid_y_idx, count, "black", to_canvas_context, "20px serif", {'x':0, 'y':5})
     });
 
 }
