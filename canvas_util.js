@@ -47,7 +47,7 @@
             }
             
 
-            var draw_line = function(grid_x_start, grid_y_start, grid_x_end, grid_y_end, scale_context){
+            var draw_line = function(grid_x_start, grid_y_start, grid_x_end, grid_y_end, scale_context, strokeStyles){
 
                 start_coord = convert_coords(grid_x_start, grid_y_start);
                 end_coord = convert_coords(grid_x_end, grid_y_end);
@@ -55,16 +55,14 @@
                 scale_context.moveTo(start_coord['canvas_x'], start_coord['canvas_y']);
                 scale_context.lineTo(end_coord['canvas_x'], end_coord['canvas_y']);
 
-                // Draw the Path
-                scale_context.save();
-                scale_context.strokeStyle = "white";
-                scale_context.stroke();
-
-                scale_context.restore();
-                scale_context.strokeStyle = "black";
-                scale_context.setLineDash([2, 2]);
-                scale_context.stroke();
-                scale_context.restore();
+                strokeStyles.forEach(function(style_func){
+                    // Draw the Path
+                    scale_context.save();
+                    style_func(scale_context)
+                    scale_context.strokeStyle = strokeStyles[0].color;
+                    scale_context.stroke();
+                    scale_context.restore();
+                })
             }
 
             var copy_canvas = function(from_canvas, to_canvas, x, y){

@@ -42,14 +42,28 @@
                         });
                     }
                 }
+                normal_style = [function(context){
+                    context.strokeStyle='white';
+                }, function(context){
+                    context.strokeStyle='black';
+                    context.setLineDash([2,2]);
+                }]
+
+                five_style = [function(context){
+                    context.strokeStyle='pink';
+                    context.lineWidth = 3;
+                }]
+
 
                 //draw grid lines
                 for(var grid_x=0; grid_x <= (grid_x_max * scale)+scale; grid_x++){
-                    draw_line(grid_x, 0, grid_x, (grid_y_max*scale)+scale, scale_context)
+                    var style = grid_x % 5 == 0 ? five_style : normal_style;
+                    draw_line(grid_x, 0, grid_x, (grid_y_max*scale)+scale, scale_context, style)
                 }
 
                 for(var grid_y=0; grid_y <= (grid_y_max * scale)+scale; grid_y++){
-                    draw_line(0, grid_y, (grid_x_max*scale)+scale, grid_y, scale_context)
+                    var style = grid_y % 5 == 0 ? five_style : normal_style;
+                    draw_line(0, grid_y, (grid_x_max*scale)+scale, grid_y, scale_context, style)
                 }
 
                 legend_render();
